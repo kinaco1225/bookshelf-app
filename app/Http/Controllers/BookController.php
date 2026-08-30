@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BookRequest;
 use App\Models\Book;
+use App\Models\Genre;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class BookController extends Controller
@@ -23,5 +26,30 @@ class BookController extends Controller
             ->paginate(10);
 
         return view('books.index', compact('books'));
+    }
+
+    /**
+     * 書籍登録フォームを表示する。
+     */
+    public function create(): View
+    {
+        return view('books.create', [
+            'genres' => Genre::orderBy('id')->get(),
+        ]);
+    }
+
+    /**
+     * 書籍を登録する。
+     */
+    public function store(BookRequest $request): RedirectResponse
+    {
+        $book = $request->user()->books()->create(
+            $request->safe()->except('genres')
+        );
+        $book->genres()->sync($request->validated('genres'));
+
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を登録しました。');
     }
 }
