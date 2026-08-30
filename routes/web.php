@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Route;
 | 認証条件（auth ミドルウェア）はコントローラではなくこのファイルで指定する。
 */
 
-// 書籍一覧（トップ）— 公開。/ と /books の両方で表示する。
+// 書籍一覧（トップ）— 公開。正規の URL は「/」。
 Route::get('/', [BookController::class, 'index'])->name('books.index');
-Route::get('/books', [BookController::class, 'index']);
+// 「/books」は正規 URL「/」へリダイレクト（要件の「/ または /books」に対応）。
+Route::redirect('/books', '/');
 
 // 書籍の登録・編集・削除 — 認証必須。
 // 「/books/create」を「/books/{book}」より先に登録する必要があるためグループを前に置く。
