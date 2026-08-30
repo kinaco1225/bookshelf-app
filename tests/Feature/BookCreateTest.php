@@ -59,11 +59,10 @@ class BookCreateTest extends TestCase
         $response = $this->actingAs($user)
             ->post('/books', $this->validPayload([$g1->id, $g2->id]));
 
-        $response->assertRedirect(route('books.index'));
+        $book = Book::sole();
+        $response->assertRedirect(route('books.show', $book));
         $response->assertSessionHas('success');
 
-        $book = Book::first();
-        $this->assertNotNull($book);
         $this->assertSame('テスト駆動開発', $book->title);
         $this->assertSame($user->id, $book->user_id);
         $this->assertEqualsCanonicalizing(
@@ -82,9 +81,9 @@ class BookCreateTest extends TestCase
                 'description' => '',
                 'image_url' => '',
             ]))
-            ->assertRedirect(route('books.index'));
+            ->assertRedirect(route('books.show', Book::sole()));
 
-        $book = Book::first();
+        $book = Book::sole();
         $this->assertNull($book->description);
         $this->assertNull($book->image_url);
     }

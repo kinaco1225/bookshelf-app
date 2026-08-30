@@ -29,6 +29,25 @@ class BookController extends Controller
     }
 
     /**
+     * 書籍詳細を表示する。
+     *
+     * 書籍情報・ジャンル・レビュー（投稿者といいねユーザー付き）を
+     * まとめて Eager Load し、レビューは新しい順に並べる。
+     */
+    public function show(Book $book): View
+    {
+        $book->load([
+            'user',
+            'genres',
+            'reviews' => fn ($query) => $query->latest()->latest('id'),
+            'reviews.user',
+            'reviews.likedByUsers',
+        ]);
+
+        return view('books.show', compact('book'));
+    }
+
+    /**
      * 書籍登録フォームを表示する。
      */
     public function create(): View
@@ -49,7 +68,7 @@ class BookController extends Controller
         $book->genres()->sync($request->validated('genres'));
 
         return redirect()
-            ->route('books.index')
+            ->route('books.show', $book)
             ->with('success', '書籍を登録しました。');
     }
 }

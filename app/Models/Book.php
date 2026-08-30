@@ -22,9 +22,8 @@ class Book extends Model
         'image_url',
     ];
 
-    protected $casts = [
-        'published_date' => 'date',
-    ];
+    // published_date は date 型カラムだが、提供 Blade が生の "Y-m-d" 文字列を
+    // そのまま表示・<input type="date"> に流用するため Carbon キャストしない。
 
     /**
      * この書籍の登録者。
