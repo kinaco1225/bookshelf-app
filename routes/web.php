@@ -38,3 +38,11 @@ Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show')
 Route::get('/ranking', fn () => abort(501, 'ランキング機能は未実装です'))->name('ranking.index');
 Route::get('/genres', fn () => abort(501, 'ジャンル管理は未実装です'))->name('genres.index');
 Route::get('/favorites', fn () => abort(501, 'お気に入り機能は未実装です'))->name('favorites.index');
+
+// レビュー・お気に入り・いいね（書籍詳細画面が route() を解決できるようにするための仮登録）
+Route::post('/books/{book}/favorites', fn () => abort(501, 'お気に入り機能は未実装です'))->name('favorites.toggle');
+Route::post('/books/{book}/reviews', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.store');
+Route::post('/reviews/{review}/like', fn () => abort(501, 'いいね機能は未実装です'))->name('reviews.like');
+Route::get('/reviews/{review}/edit', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.edit');
+Route::put('/reviews/{review}', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.update');
+Route::delete('/reviews/{review}', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.destroy');
