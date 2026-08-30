@@ -7,16 +7,26 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
+|
+| 認証条件（auth ミドルウェア）はコントローラではなくこのファイルで指定する。
 */
 
 // 書籍一覧（トップ）— 公開。/ と /books の両方で表示する。
 Route::get('/', [BookController::class, 'index'])->name('books.index');
 Route::get('/books', [BookController::class, 'index']);
 
-// 書籍リソース（index は上で定義済みのため除外）。
-// show は公開、create/store/edit/update/destroy は BookController の
-// コンストラクタで auth ミドルウェアを適用している。
-Route::resource('books', BookController::class)->except(['index']);
+// 書籍の登録・編集・削除 — 認証必須。
+// 「/books/create」を「/books/{book}」より先に登録する必要があるためグループを前に置く。
+Route::middleware('auth')->group(function () {
+    Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
+    Route::post('/books', [BookController::class, 'store'])->name('books.store');
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
+    Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
+});
+
+// 書籍詳細 — 公開。{book} のワイルドカードは最後に登録する。
+Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
 
 /*
 |--------------------------------------------------------------------------

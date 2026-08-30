@@ -7,12 +7,6 @@ use Illuminate\View\View;
 
 class BookController extends Controller
 {
-    public function __construct()
-    {
-        // 一覧・詳細は公開。それ以外は認証必須。
-        $this->middleware('auth')->except(['index', 'show']);
-    }
-
     /**
      * 書籍一覧（トップページ）を表示する。
      *
