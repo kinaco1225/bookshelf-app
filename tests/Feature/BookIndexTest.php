@@ -27,9 +27,9 @@ class BookIndexTest extends TestCase
         $this->get('/')->assertOk();
     }
 
-    public function test_booksパスでも書籍一覧を表示する(): void
+    public function test_booksパスはトップページへリダイレクトする(): void
     {
-        $this->get('/books')->assertOk();
+        $this->get('/books')->assertRedirect('/');
     }
 
     public function test_登録済みの書籍が一覧に表示される(): void
