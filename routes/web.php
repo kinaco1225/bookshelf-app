@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewLikeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,10 +37,11 @@ Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])
     ->middleware('auth')
     ->name('reviews.store');
 
-// お気に入り — 認証必須。
+// お気に入り・いいね — 認証必須。
 Route::middleware('auth')->group(function () {
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+    Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])->name('reviews.like');
 });
 
 /*
@@ -51,8 +53,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/ranking', fn () => abort(501, 'ランキング機能は未実装です'))->name('ranking.index');
 Route::get('/genres', fn () => abort(501, 'ジャンル管理は未実装です'))->name('genres.index');
 
-// いいね・レビュー編集（書籍詳細画面が route() を解決できるようにするための仮登録）
-Route::post('/reviews/{review}/like', fn () => abort(501, 'いいね機能は未実装です'))->name('reviews.like');
+// レビュー編集・削除（書籍詳細画面が route() を解決できるようにするための仮登録）
 Route::get('/reviews/{review}/edit', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.edit');
 Route::put('/reviews/{review}', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.update');
 Route::delete('/reviews/{review}', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.destroy');
