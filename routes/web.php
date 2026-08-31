@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +30,11 @@ Route::middleware('auth')->group(function () {
 // 書籍詳細 — 公開。{book} のワイルドカードは最後に登録する。
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
 
+// レビュー投稿 — 認証必須。
+Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])
+    ->middleware('auth')
+    ->name('reviews.store');
+
 /*
 |--------------------------------------------------------------------------
 | プレースホルダ（後続の機能ステップで各コントローラに差し替える）
@@ -39,9 +45,8 @@ Route::get('/ranking', fn () => abort(501, 'ランキング機能は未実装で
 Route::get('/genres', fn () => abort(501, 'ジャンル管理は未実装です'))->name('genres.index');
 Route::get('/favorites', fn () => abort(501, 'お気に入り機能は未実装です'))->name('favorites.index');
 
-// レビュー・お気に入り・いいね（書籍詳細画面が route() を解決できるようにするための仮登録）
+// お気に入り・いいね・レビュー編集（書籍詳細画面が route() を解決できるようにするための仮登録）
 Route::post('/books/{book}/favorites', fn () => abort(501, 'お気に入り機能は未実装です'))->name('favorites.toggle');
-Route::post('/books/{book}/reviews', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.store');
 Route::post('/reviews/{review}/like', fn () => abort(501, 'いいね機能は未実装です'))->name('reviews.like');
 Route::get('/reviews/{review}/edit', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.edit');
 Route::put('/reviews/{review}', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.update');
