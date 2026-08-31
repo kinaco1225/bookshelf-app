@@ -24,10 +24,10 @@ Route::redirect('/books', '/');
 Route::middleware('auth')->group(function () {
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
     Route::post('/books', [BookController::class, 'store'])->name('books.store');
-    // 編集・更新・削除は登録者本人のみ（BookPolicy）。
-    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit')->can('update', 'book');
-    Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update')->can('update', 'book');
-    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy')->can('delete', 'book');
+    // 編集・更新・削除は登録者本人のみ。認可は各コントローラで $this->authorize() で適用（BookPolicy）。
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
+    Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
 });
 
 // 書籍詳細 — 公開。{book} のワイルドカードは最後に登録する。
@@ -45,11 +45,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])->name('reviews.like');
 });
 
-// レビューの編集・削除 — 認証必須。投稿者本人のみ（ReviewPolicy）。
+// レビューの編集・削除 — 認証必須。認可は各コントローラで $this->authorize() で適用（ReviewPolicy）。
 Route::middleware('auth')->group(function () {
-    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit')->can('update', 'review');
-    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update')->can('update', 'review');
-    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy')->can('delete', 'review');
+    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 
 /*

@@ -77,6 +77,8 @@ class BookController extends Controller
      */
     public function edit(Book $book): View
     {
+        $this->authorize('update', $book);
+
         $book->load('genres');
 
         return view('books.edit', [
@@ -90,6 +92,8 @@ class BookController extends Controller
      */
     public function update(BookRequest $request, Book $book): RedirectResponse
     {
+        $this->authorize('update', $book);
+
         $book->update($request->safe()->except('genres'));
         $book->genres()->sync($request->validated('genres'));
 
@@ -103,6 +107,8 @@ class BookController extends Controller
      */
     public function destroy(Book $book): RedirectResponse
     {
+        $this->authorize('delete', $book);
+
         $book->delete();
 
         return redirect()

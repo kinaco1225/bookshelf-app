@@ -30,6 +30,8 @@ class ReviewController extends Controller
      */
     public function edit(Review $review): View
     {
+        $this->authorize('update', $review);
+
         $review->load('book');
 
         return view('reviews.edit', compact('review'));
@@ -40,6 +42,8 @@ class ReviewController extends Controller
      */
     public function update(ReviewRequest $request, Review $review): RedirectResponse
     {
+        $this->authorize('update', $review);
+
         $review->update($request->validated());
 
         return redirect()
@@ -52,6 +56,8 @@ class ReviewController extends Controller
      */
     public function destroy(Review $review): RedirectResponse
     {
+        $this->authorize('delete', $review);
+
         $bookId = $review->book_id;
         $review->delete();
 
