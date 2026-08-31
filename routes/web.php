@@ -45,6 +45,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])->name('reviews.like');
 });
 
+// レビューの編集・削除 — 認証必須。投稿者本人のみ（ReviewPolicy）。
+Route::middleware('auth')->group(function () {
+    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit')->can('update', 'review');
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update')->can('update', 'review');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy')->can('delete', 'review');
+});
+
 /*
 |--------------------------------------------------------------------------
 | プレースホルダ（後続の機能ステップで各コントローラに差し替える）
@@ -53,8 +60,3 @@ Route::middleware('auth')->group(function () {
 */
 Route::get('/ranking', fn () => abort(501, 'ランキング機能は未実装です'))->name('ranking.index');
 Route::get('/genres', fn () => abort(501, 'ジャンル管理は未実装です'))->name('genres.index');
-
-// レビュー編集・削除（書籍詳細画面が route() を解決できるようにするための仮登録）
-Route::get('/reviews/{review}/edit', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.edit');
-Route::put('/reviews/{review}', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.update');
-Route::delete('/reviews/{review}', fn () => abort(501, 'レビュー機能は未実装です'))->name('reviews.destroy');
