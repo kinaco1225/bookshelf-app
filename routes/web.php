@@ -24,9 +24,10 @@ Route::redirect('/books', '/');
 Route::middleware('auth')->group(function () {
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
     Route::post('/books', [BookController::class, 'store'])->name('books.store');
-    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
-    Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
-    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
+    // 編集・更新・削除は登録者本人のみ（BookPolicy）。
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit')->can('update', 'book');
+    Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update')->can('update', 'book');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy')->can('delete', 'book');
 });
 
 // 書籍詳細 — 公開。{book} のワイルドカードは最後に登録する。

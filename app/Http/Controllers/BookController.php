@@ -71,4 +71,42 @@ class BookController extends Controller
             ->route('books.show', $book)
             ->with('success', '書籍を登録しました。');
     }
+
+    /**
+     * 書籍編集フォームを表示する。
+     */
+    public function edit(Book $book): View
+    {
+        $book->load('genres');
+
+        return view('books.edit', [
+            'book' => $book,
+            'genres' => Genre::orderBy('id')->get(),
+        ]);
+    }
+
+    /**
+     * 書籍を更新する。
+     */
+    public function update(BookRequest $request, Book $book): RedirectResponse
+    {
+        $book->update($request->safe()->except('genres'));
+        $book->genres()->sync($request->validated('genres'));
+
+        return redirect()
+            ->route('books.show', $book)
+            ->with('success', '書籍を更新しました。');
+    }
+
+    /**
+     * 書籍を削除する（関連レビュー・お気に入り・ジャンル紐付けは FK のカスケードで削除）。
+     */
+    public function destroy(Book $book): RedirectResponse
+    {
+        $book->delete();
+
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を削除しました。');
+    }
 }
