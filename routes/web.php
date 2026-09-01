@@ -53,14 +53,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 
-// ジャンル — 認証必須。一覧のみ実装済み。それ以外は後続ステップのプレースホルダ。
+// ジャンル — 認証必須（ジャンルは全ユーザー共通のマスタ。所有者制限なし）。
 // 「/genres/create」を「/genres/{genre}」より先に登録する。
 Route::middleware('auth')->group(function () {
     Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
-    Route::get('/genres/create', fn () => abort(501, 'ジャンル登録は未実装です'))->name('genres.create');
-    Route::get('/genres/{genre}', fn () => abort(501, 'ジャンル詳細は未実装です'))->name('genres.show');
-    Route::get('/genres/{genre}/edit', fn () => abort(501, 'ジャンル編集は未実装です'))->name('genres.edit');
-    Route::delete('/genres/{genre}', fn () => abort(501, 'ジャンル削除は未実装です'))->name('genres.destroy');
+    Route::get('/genres/create', [GenreController::class, 'create'])->name('genres.create');
+    Route::post('/genres', [GenreController::class, 'store'])->name('genres.store');
+    Route::get('/genres/{genre}', [GenreController::class, 'show'])->name('genres.show');
+    Route::get('/genres/{genre}/edit', [GenreController::class, 'edit'])->name('genres.edit');
+    Route::put('/genres/{genre}', [GenreController::class, 'update'])->name('genres.update');
+    Route::delete('/genres/{genre}', [GenreController::class, 'destroy'])->name('genres.destroy');
 });
 
 /*
