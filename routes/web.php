@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 
+// ジャンル — 認証必須。一覧のみ実装済み。それ以外は後続ステップのプレースホルダ。
+// 「/genres/create」を「/genres/{genre}」より先に登録する。
+Route::middleware('auth')->group(function () {
+    Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
+    Route::get('/genres/create', fn () => abort(501, 'ジャンル登録は未実装です'))->name('genres.create');
+    Route::get('/genres/{genre}', fn () => abort(501, 'ジャンル詳細は未実装です'))->name('genres.show');
+    Route::get('/genres/{genre}/edit', fn () => abort(501, 'ジャンル編集は未実装です'))->name('genres.edit');
+    Route::delete('/genres/{genre}', fn () => abort(501, 'ジャンル削除は未実装です'))->name('genres.destroy');
+});
+
 /*
 |--------------------------------------------------------------------------
 | プレースホルダ（後続の機能ステップで各コントローラに差し替える）
@@ -59,4 +70,3 @@ Route::middleware('auth')->group(function () {
 | 共有レイアウトのヘッダーナビが route() 名を解決できるよう、先に名前だけ登録している。
 */
 Route::get('/ranking', fn () => abort(501, 'ランキング機能は未実装です'))->name('ranking.index');
-Route::get('/genres', fn () => abort(501, 'ジャンル管理は未実装です'))->name('genres.index');
