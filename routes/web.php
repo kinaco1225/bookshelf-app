@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [BookController::class, 'index'])->name('books.index');
 // 「/books」は正規 URL「/」へリダイレクト（要件の「/ または /books」に対応）。
 Route::redirect('/books', '/');
+
+// 評価ランキング — 公開。
+Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 
 // 書籍の登録・編集・削除 — 認証必須。
 // 「/books/create」を「/books/{book}」より先に登録する必要があるためグループを前に置く。
@@ -64,11 +68,3 @@ Route::middleware('auth')->group(function () {
     Route::put('/genres/{genre}', [GenreController::class, 'update'])->name('genres.update');
     Route::delete('/genres/{genre}', [GenreController::class, 'destroy'])->name('genres.destroy');
 });
-
-/*
-|--------------------------------------------------------------------------
-| プレースホルダ（後続の機能ステップで各コントローラに差し替える）
-|--------------------------------------------------------------------------
-| 共有レイアウトのヘッダーナビが route() 名を解決できるよう、先に名前だけ登録している。
-*/
-Route::get('/ranking', fn () => abort(501, 'ランキング機能は未実装です'))->name('ranking.index');
