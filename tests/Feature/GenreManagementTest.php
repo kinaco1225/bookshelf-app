@@ -72,6 +72,13 @@ class GenreManagementTest extends TestCase
 
     // --- 登録 ---
 
+    public function test_認証済みユーザーはジャンル登録フォームを表示できる(): void
+    {
+        $this->actingUser();
+
+        $this->get('/genres/create')->assertOk();
+    }
+
     public function test_ゲストはジャンル登録フォームにアクセスできない(): void
     {
         $this->get('/genres/create')->assertRedirect('/login');
@@ -112,6 +119,16 @@ class GenreManagementTest extends TestCase
         $genre = Genre::create(['name' => '小説']);
 
         $this->get("/genres/{$genre->id}/edit")->assertRedirect('/login');
+    }
+
+    public function test_認証済みユーザーはジャンル編集フォームに現在の名前が表示される(): void
+    {
+        $this->actingUser();
+        $genre = Genre::create(['name' => '小説']);
+
+        $this->get("/genres/{$genre->id}/edit")
+            ->assertOk()
+            ->assertSee('小説');
     }
 
     public function test_認証済みユーザーはジャンルを更新できる(): void
