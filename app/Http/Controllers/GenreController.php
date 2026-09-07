@@ -53,7 +53,7 @@ class GenreController extends Controller
 
         return redirect()
             ->route('genres.index')
-            ->with('success', 'ジャンルを登録しました。');
+            ->with('success', 'ジャンルを作成しました。');
     }
 
     /**

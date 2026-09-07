@@ -90,7 +90,7 @@ class GenreManagementTest extends TestCase
 
         $this->post('/genres', ['name' => 'ライトノベル'])
             ->assertRedirect(route('genres.index'))
-            ->assertSessionHas('success', 'ジャンルを登録しました。');
+            ->assertSessionHas('success', 'ジャンルを作成しました。');
 
         $this->assertDatabaseHas('genres', ['name' => 'ライトノベル']);
     }

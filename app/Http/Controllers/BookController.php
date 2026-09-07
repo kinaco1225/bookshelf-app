@@ -13,7 +13,7 @@ class BookController extends Controller
     /**
      * 書籍一覧（トップページ）を表示する。
      *
-     * 全書籍を登録日の新しい順に 10 件ずつページネーションし、
+     * 全書籍を id の昇順に 10 件ずつページネーションし、
      * 各書籍にジャンルと平均評価を付与する。
      */
     public function index(): View
@@ -21,8 +21,7 @@ class BookController extends Controller
         $books = Book::query()
             ->with('genres')
             ->withAvg('reviews', 'rating')
-            ->latest()       // created_at の新しい順
-            ->latest('id')   // 同時刻登録時の並びを一意にする
+            ->orderBy('id')
             ->paginate(10);
 
         return view('books.index', compact('books'));
