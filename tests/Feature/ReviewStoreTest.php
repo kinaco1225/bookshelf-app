@@ -50,15 +50,15 @@ class ReviewStoreTest extends TestCase
         $this->assertSame('参考になった', $review->comment);
     }
 
-    public function test_コメントは任意(): void
+    public function test_コメントは必須(): void
     {
         $book = $this->createBook();
 
         $this->actingAs(User::factory()->create())
             ->post("/books/{$book->id}/reviews", ['rating' => 3, 'comment' => ''])
-            ->assertSessionHasNoErrors();
+            ->assertSessionHasErrors('comment');
 
-        $this->assertNull(Review::sole()->comment);
+        $this->assertDatabaseCount('reviews', 0);
     }
 
     public function test_評価は必須(): void
