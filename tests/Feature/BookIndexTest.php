@@ -39,13 +39,12 @@ class BookIndexTest extends TestCase
         $this->get('/')->assertOk()->assertSee('一覧に出る本');
     }
 
-    public function test_書籍は登録日の新しい順に並ぶ(): void
+    public function test_書籍はidの昇順に並ぶ(): void
     {
-        $old = $this->createBook(['title' => 'ふるい本']);
-        $old->forceFill(['created_at' => now()->subDay()])->save();
-        $this->createBook(['title' => 'あたらしい本']);
+        $this->createBook(['title' => 'さきに登録した本']);
+        $this->createBook(['title' => 'あとに登録した本']);
 
-        $this->get('/')->assertSeeInOrder(['あたらしい本', 'ふるい本']);
+        $this->get('/')->assertSeeInOrder(['さきに登録した本', 'あとに登録した本']);
     }
 
     public function test_1ページに10件までしか表示されない(): void
@@ -56,8 +55,8 @@ class BookIndexTest extends TestCase
 
         $response = $this->get('/')->assertOk();
 
-        // 最古の「本01」は2ページ目に回るため1ページ目には出ない
-        $response->assertDontSee('本01');
+        // id 昇順なので id が大きい「本12」は2ページ目に回り、1ページ目には出ない
+        $response->assertDontSee('本12');
         $response->assertSee('page=2');
     }
 }
