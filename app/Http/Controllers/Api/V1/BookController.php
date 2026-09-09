@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\BookIndexRequest;
+use App\Http\Requests\Api\V1\BookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 class BookController extends Controller
 {
@@ -47,10 +49,24 @@ class BookController extends Controller
      * 書籍を新規登録する。
      *
      * POST /api/v1/books
+     *
+     * リクエストボディ: user_id（登録者ID・実在必須）, title, author, isbn（13桁・一意）,
+     *   published_date, description（任意）, image_url（任意）, genres（1つ以上のジャンルID）
+     * 成功時は 201 Created と Location ヘッダ、作成した書籍を返す。
      */
-    public function store(Request $request)
+    public function store(BookRequest $request): JsonResponse
     {
-        //
+        $book = Book::create($request->safe()->except('genres'));
+        $book->genres()->sync($request->validated('genres'));
+
+        $book->load(['genres', 'reviews.user'])
+            ->loadCount('reviews')
+            ->loadAvg('reviews', 'rating');
+
+        return (new BookResource($book))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED)
+            ->header('Location', route('api.v1.books.show', $book));
     }
 
     /**
@@ -78,19 +94,35 @@ class BookController extends Controller
      * 書籍を更新する。
      *
      * PUT/PATCH /api/v1/books/{book}
+     *
+     * リクエストボディは登録と同一（全項目）。ISBN の一意性チェックは自身を除外。
+     * 存在しないIDは 404 の JSON エラー（Handler で統一）。
      */
-    public function update(Request $request, Book $book)
+    public function update(BookRequest $request, Book $book): BookResource
     {
-        //
+        $book->update($request->safe()->except('genres'));
+        $book->genres()->sync($request->validated('genres'));
+
+        $book->load(['genres', 'reviews.user'])
+            ->loadCount('reviews')
+            ->loadAvg('reviews', 'rating');
+
+        return new BookResource($book);
     }
 
     /**
      * 書籍を削除する。
      *
      * DELETE /api/v1/books/{book}
+     *
+     * 関連データ（レビュー・お気に入り・ジャンル紐付け）は外部キーの
+     * ON DELETE CASCADE で連動削除される。
+     * 成功時は 204 No Content。存在しないIDは 404 の JSON エラー（Handler で統一）。
      */
-    public function destroy(Book $book)
+    public function destroy(Book $book): Response
     {
-        //
+        $book->delete();
+
+        return response()->noContent();
     }
 }
