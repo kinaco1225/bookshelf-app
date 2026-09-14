@@ -29,13 +29,15 @@ class BookRequest extends FormRequest
             'user_id' => ['required', 'integer', 'exists:users,id'],
             'title' => ['required', 'string', 'max:255'],
             'author' => ['required', 'string', 'max:255'],
+            // 応用フェーズ: ISBN検索の自動入力に失敗しても登録できるよう nullable。
             'isbn' => [
-                'required',
+                'nullable',
                 'string',
                 'regex:/\A[0-9]{13}\z/',
                 Rule::unique('books', 'isbn')->ignore($this->route('book')),
             ],
-            'published_date' => ['required', 'date'],
+            // 応用フェーズ: Google Books API が出版日を返さない場合があるため nullable。
+            'published_date' => ['nullable', 'date'],
             'description' => ['nullable', 'string'],
             'image_url' => ['nullable', 'url', 'max:2048'],
             'genres' => ['required', 'array', 'min:1'],
@@ -56,10 +58,8 @@ class BookRequest extends FormRequest
             'title.max' => 'タイトルは255文字以内で入力してください。',
             'author.required' => '著者を入力してください。',
             'author.max' => '著者は255文字以内で入力してください。',
-            'isbn.required' => 'ISBNを入力してください。',
             'isbn.regex' => 'ISBNは13桁の数字で入力してください。',
             'isbn.unique' => 'このISBNの書籍はすでに登録されています。',
-            'published_date.required' => '出版日を入力してください。',
             'published_date.date' => '出版日は正しい日付で入力してください。',
             'image_url.url' => '画像URLは正しいURL形式で入力してください。',
             'image_url.max' => '画像URLは2048文字以内で入力してください。',

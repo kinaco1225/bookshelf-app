@@ -78,6 +78,25 @@ class BookStoreApiTest extends TestCase
         $this->assertNull($book->image_url);
     }
 
+    public function test_isbnと出版日は任意(): void
+    {
+        // ISBN検索の自動入力に失敗しても登録できるよう nullable にしている（応用フェーズ）。
+        $genre = Genre::create(['name' => '小説']);
+
+        $response = $this->postJson('/api/v1/books', $this->payload([$genre->id], [
+            'isbn' => null,
+            'published_date' => null,
+        ]));
+
+        $response->assertCreated()
+            ->assertJsonPath('data.isbn', null)
+            ->assertJsonPath('data.published_date', null);
+
+        $book = Book::sole();
+        $this->assertNull($book->isbn);
+        $this->assertNull($book->published_date);
+    }
+
     public function test_登録者idは必須(): void
     {
         $genre = Genre::create(['name' => '小説']);

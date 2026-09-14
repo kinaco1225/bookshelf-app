@@ -61,6 +61,24 @@ class BookUpdateApiTest extends TestCase
         $this->assertSame([$newGenre->id], $book->genres->pluck('id')->all());
     }
 
+    public function test_isbnと出版日は空にできる(): void
+    {
+        $book = $this->createBook();
+
+        $response = $this->putJson("/api/v1/books/{$book->id}", $this->payload(
+            $book->genres->pluck('id')->all(),
+            ['isbn' => null, 'published_date' => null],
+        ));
+
+        $response->assertOk()
+            ->assertJsonPath('data.isbn', null)
+            ->assertJsonPath('data.published_date', null);
+
+        $book->refresh();
+        $this->assertNull($book->isbn);
+        $this->assertNull($book->published_date);
+    }
+
     public function test_存在しないidは404のjsonエラー(): void
     {
         $genre = Genre::create(['name' => '小説']);

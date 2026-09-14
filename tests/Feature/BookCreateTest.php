@@ -88,6 +88,24 @@ class BookCreateTest extends TestCase
         $this->assertNull($book->image_url);
     }
 
+    public function test_isbnと出版日は任意項目(): void
+    {
+        // ISBN検索の自動入力に失敗しても登録できるよう nullable にしている（応用フェーズ）。
+        $user = User::factory()->create();
+        $genre = Genre::create(['name' => '小説']);
+
+        $this->actingAs($user)
+            ->post('/books', $this->validPayload([$genre->id], [
+                'isbn' => '',
+                'published_date' => '',
+            ]))
+            ->assertRedirect(route('books.show', Book::sole()));
+
+        $book = Book::sole();
+        $this->assertNull($book->isbn);
+        $this->assertNull($book->published_date);
+    }
+
     public function test_タイトルは必須(): void
     {
         $user = User::factory()->create();
