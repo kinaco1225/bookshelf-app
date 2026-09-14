@@ -4,6 +4,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\RankingController;
+use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/genres/{genre}', [GenreController::class, 'destroy'])->name('genres.destroy');
 });
 
+// 読書計画一覧 — 認証必須（自分の計画のみ）。作成・編集・削除・完了は後続ステップで実装。
+Route::middleware('auth')->group(function () {
+    Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
+});
+
 /*
 |--------------------------------------------------------------------------
 | 応用フェーズ（★）— プレースホルダ
@@ -82,7 +88,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reading-plans/create', fn () => abort(501, '読書計画作成は未実装です'))->name('reading-plans.create');
     Route::post('/reading-plans', fn () => abort(501, '読書計画作成は未実装です'))->name('reading-plans.store');
-    Route::get('/reading-plans', fn () => abort(501, '読書計画一覧は未実装です'))->name('reading-plans.index');
     Route::get('/reading-plans/{plan}/edit', fn () => abort(501, '読書計画編集は未実装です'))->name('reading-plans.edit');
     Route::put('/reading-plans/{plan}', fn () => abort(501, '読書計画編集は未実装です'))->name('reading-plans.update');
     Route::delete('/reading-plans/{plan}', fn () => abort(501, '読書計画削除は未実装です'))->name('reading-plans.destroy');
