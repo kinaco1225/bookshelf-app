@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class BookTest extends TestCase
@@ -75,11 +76,12 @@ class BookTest extends TestCase
         $this->assertCount(1, $book->reviews);
     }
 
-    public function test_published_dateは文字列のまま扱われる(): void
+    public function test_published_dateはcarbonにキャストされる(): void
     {
+        // 応用フェーズの Blade（books/_form・books/show）が ->format() を呼ぶ前提。
         $book = $this->makeBook()->fresh();
 
-        $this->assertIsString($book->published_date);
-        $this->assertSame('2020-01-01', $book->published_date);
+        $this->assertInstanceOf(Carbon::class, $book->published_date);
+        $this->assertSame('2020-01-01', $book->published_date->format('Y-m-d'));
     }
 }

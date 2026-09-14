@@ -17,7 +17,8 @@ class BookResource extends JsonResource
             'title' => $this->title,
             'author' => $this->author,
             'isbn' => $this->isbn,
-            'published_date' => $this->published_date,
+            // published_date は Carbon キャストのため、日付のみの文字列に整形して返す。
+            'published_date' => $this->published_date?->format('Y-m-d'),
             'description' => $this->description,
             'image_url' => $this->image_url,
             'genres' => GenreResource::collection($this->whenLoaded('genres')),
