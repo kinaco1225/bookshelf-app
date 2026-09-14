@@ -27,7 +27,7 @@ class BookShowApiTest extends TestCase
 
     public function test_書籍詳細をjsonで取得できる(): void
     {
-        $book = $this->createBook(['title' => '詳細対象本']);
+        $book = $this->createBook(['title' => '詳細対象本', 'published_date' => '2020-01-01']);
         $book->genres()->sync([Genre::create(['name' => '技術書'])->id]);
 
         $this->getJson("/api/v1/books/{$book->id}")
@@ -40,6 +40,8 @@ class BookShowApiTest extends TestCase
             ])
             ->assertJsonPath('data.id', $book->id)
             ->assertJsonPath('data.title', '詳細対象本')
+            // published_date は Carbon キャストだが、時刻を含まない日付のみで返す
+            ->assertJsonPath('data.published_date', '2020-01-01')
             ->assertJsonPath('data.genres.0.name', '技術書');
     }
 

@@ -68,3 +68,26 @@ Route::middleware('auth')->group(function () {
     Route::put('/genres/{genre}', [GenreController::class, 'update'])->name('genres.update');
     Route::delete('/genres/{genre}', [GenreController::class, 'destroy'])->name('genres.destroy');
 });
+
+/*
+|--------------------------------------------------------------------------
+| 応用フェーズ（★）— プレースホルダ
+|--------------------------------------------------------------------------
+| 応用版 Blade（共有レイアウトのナビ等）が route() を解決できるよう、
+| 先に名前だけ登録している。実装は各機能に着手するときに差し替える。
+| 「/reading-plans/create」を「/reading-plans/{plan}」より先に登録する。
+*/
+Route::middleware('auth')->group(function () {
+    Route::get('/reports', fn () => abort(501, 'マイ読書レポートは未実装です'))->name('reports.index');
+
+    Route::get('/reading-plans/create', fn () => abort(501, '読書計画作成は未実装です'))->name('reading-plans.create');
+    Route::post('/reading-plans', fn () => abort(501, '読書計画作成は未実装です'))->name('reading-plans.store');
+    Route::get('/reading-plans', fn () => abort(501, '読書計画一覧は未実装です'))->name('reading-plans.index');
+    Route::get('/reading-plans/{plan}/edit', fn () => abort(501, '読書計画編集は未実装です'))->name('reading-plans.edit');
+    Route::put('/reading-plans/{plan}', fn () => abort(501, '読書計画編集は未実装です'))->name('reading-plans.update');
+    Route::delete('/reading-plans/{plan}', fn () => abort(501, '読書計画削除は未実装です'))->name('reading-plans.destroy');
+    Route::post('/reading-plans/{plan}/complete', fn () => abort(501, '読書計画の完了処理は未実装です'))->name('reading-plans.complete');
+
+    Route::get('/notifications', fn () => abort(501, '通知一覧は未実装です'))->name('notifications.index');
+    Route::post('/notifications/{id}/read', fn () => abort(501, '通知の既読処理は未実装です'))->name('notifications.read');
+});
