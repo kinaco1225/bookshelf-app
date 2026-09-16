@@ -102,4 +102,21 @@ class ReadingPlanController extends Controller
             ->route('reading-plans.index')
             ->with('success', '読書計画を削除しました。');
     }
+
+    /**
+     * 読書計画を「読了」にする。完了済みは対象外（ReadingPlanPolicy の update と同じ制限）。
+     */
+    public function complete(ReadingPlan $readingPlan): RedirectResponse
+    {
+        $this->authorize('update', $readingPlan);
+
+        $readingPlan->update([
+            'status' => ReadingPlanStatus::Completed,
+            'completed_at' => now()->toDateString(),
+        ]);
+
+        return redirect()
+            ->route('reading-plans.index')
+            ->with('success', '読書計画を「完了」にしました。');
+    }
 }
