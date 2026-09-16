@@ -70,12 +70,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/genres/{genre}', [GenreController::class, 'destroy'])->name('genres.destroy');
 });
 
-// 読書計画 — 認証必須（自分の計画のみ）。編集・削除・完了は後続ステップで実装。
-// 「/reading-plans/create」を「/reading-plans/{plan}」より先に登録する。
+// 読書計画 — 認証必須（自分の計画のみ）。完了処理は後続ステップで実装。
+// 「/reading-plans/create」を「/reading-plans/{readingPlan}」より先に登録する。
+// 編集・削除は登録者本人のみ。認可は各コントローラで $this->authorize() で適用（ReadingPlanPolicy）。
 Route::middleware('auth')->group(function () {
     Route::get('/reading-plans/create', [ReadingPlanController::class, 'create'])->name('reading-plans.create');
     Route::post('/reading-plans', [ReadingPlanController::class, 'store'])->name('reading-plans.store');
     Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
+    Route::get('/reading-plans/{readingPlan}/edit', [ReadingPlanController::class, 'edit'])->name('reading-plans.edit');
+    Route::put('/reading-plans/{readingPlan}', [ReadingPlanController::class, 'update'])->name('reading-plans.update');
+    Route::delete('/reading-plans/{readingPlan}', [ReadingPlanController::class, 'destroy'])->name('reading-plans.destroy');
 });
 
 /*
@@ -89,10 +93,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/reports', fn () => abort(501, 'マイ読書レポートは未実装です'))->name('reports.index');
 
-    Route::get('/reading-plans/{plan}/edit', fn () => abort(501, '読書計画編集は未実装です'))->name('reading-plans.edit');
-    Route::put('/reading-plans/{plan}', fn () => abort(501, '読書計画編集は未実装です'))->name('reading-plans.update');
-    Route::delete('/reading-plans/{plan}', fn () => abort(501, '読書計画削除は未実装です'))->name('reading-plans.destroy');
-    Route::post('/reading-plans/{plan}/complete', fn () => abort(501, '読書計画の完了処理は未実装です'))->name('reading-plans.complete');
+    Route::post('/reading-plans/{readingPlan}/complete', fn () => abort(501, '読書計画の完了処理は未実装です'))->name('reading-plans.complete');
 
     Route::get('/notifications', fn () => abort(501, '通知一覧は未実装です'))->name('notifications.index');
     Route::post('/notifications/{id}/read', fn () => abort(501, '通知の既読処理は未実装です'))->name('notifications.read');

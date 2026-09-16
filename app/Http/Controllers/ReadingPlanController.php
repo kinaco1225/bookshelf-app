@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReadingPlanStatus;
 use App\Http\Requests\ReadingPlanStoreRequest;
+use App\Http\Requests\ReadingPlanUpdateRequest;
 use App\Models\Book;
+use App\Models\ReadingPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -59,5 +61,45 @@ class ReadingPlanController extends Controller
         return redirect()
             ->route('reading-plans.index')
             ->with('success', '読書計画を作成しました。');
+    }
+
+    /**
+     * 読書計画編集フォームを表示する。完了済みは編集不可（ReadingPlanPolicy）。
+     */
+    public function edit(ReadingPlan $readingPlan): View
+    {
+        $this->authorize('update', $readingPlan);
+
+        $readingPlan->load('book');
+
+        return view('reading-plans.edit', compact('readingPlan'));
+    }
+
+    /**
+     * 読書計画を更新する（期日のみ変更可）。
+     */
+    public function update(ReadingPlanUpdateRequest $request, ReadingPlan $readingPlan): RedirectResponse
+    {
+        $this->authorize('update', $readingPlan);
+
+        $readingPlan->update($request->validated());
+
+        return redirect()
+            ->route('reading-plans.index')
+            ->with('success', '読書計画を更新しました。');
+    }
+
+    /**
+     * 読書計画を削除する（状態は問わない）。
+     */
+    public function destroy(ReadingPlan $readingPlan): RedirectResponse
+    {
+        $this->authorize('delete', $readingPlan);
+
+        $readingPlan->delete();
+
+        return redirect()
+            ->route('reading-plans.index')
+            ->with('success', '読書計画を削除しました。');
     }
 }
