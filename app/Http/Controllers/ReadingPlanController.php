@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReadingPlanStatus;
+use App\Http\Requests\ReadingPlanStoreRequest;
+use App\Models\Book;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -30,5 +33,31 @@ class ReadingPlanController extends Controller
             'readingPlans' => $readingPlans,
             'currentStatus' => $currentStatus,
         ]);
+    }
+
+    /**
+     * 読書計画作成フォームを表示する。
+     */
+    public function create(): View
+    {
+        return view('reading-plans.create', [
+            'books' => Book::orderBy('title')->get(['id', 'title', 'author']),
+        ]);
+    }
+
+    /**
+     * 読書計画を作成する。状態は常に「進行中」で始まる。
+     */
+    public function store(ReadingPlanStoreRequest $request): RedirectResponse
+    {
+        $request->user()->readingPlans()->create([
+            'book_id' => $request->validated('book_id'),
+            'target_date' => $request->validated('target_date'),
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        return redirect()
+            ->route('reading-plans.index')
+            ->with('success', '読書計画を作成しました。');
     }
 }
