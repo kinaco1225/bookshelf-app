@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
+use App\Models\ReadingPlan;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -89,5 +91,28 @@ class DatabaseSeederTest extends TestCase
             ->count();
 
         $this->assertSame(0, $selfLikes);
+    }
+
+    public function test_読書計画が6件投入され主要シナリオが山田太郎に集約される(): void
+    {
+        $this->assertDatabaseCount('reading_plans', 6);
+
+        $yamada = User::where('email', 'yamada@example.com')->firstOrFail();
+        $suzuki = User::where('email', 'suzuki@example.com')->firstOrFail();
+
+        $this->assertSame(5, ReadingPlan::where('user_id', $yamada->id)->count());
+        $this->assertSame(1, ReadingPlan::where('user_id', $suzuki->id)->count());
+
+        $this->assertSame(
+            6,
+            ReadingPlan::pluck('book_id')->unique()->count(),
+            '計画ごとに異なる書籍が割り当てられていない'
+        );
+
+        $completed = ReadingPlan::where('user_id', $yamada->id)
+            ->where('status', ReadingPlanStatus::Completed->value)
+            ->first();
+        $this->assertNotNull($completed);
+        $this->assertNotNull($completed->completed_at);
     }
 }
