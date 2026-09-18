@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\ReviewController;
@@ -83,17 +84,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/reading-plans/{readingPlan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
 });
 
+// 通知 — 認証必須（自分の通知のみ）。既読化の認可はコントローラで $this->authorize()（DatabaseNotificationPolicy）。
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+});
+
 /*
 |--------------------------------------------------------------------------
 | 応用フェーズ（★）— プレースホルダ
 |--------------------------------------------------------------------------
 | 応用版 Blade（共有レイアウトのナビ等）が route() を解決できるよう、
 | 先に名前だけ登録している。実装は各機能に着手するときに差し替える。
-| 「/reading-plans/create」を「/reading-plans/{plan}」より先に登録する。
 */
 Route::middleware('auth')->group(function () {
     Route::get('/reports', fn () => abort(501, 'マイ読書レポートは未実装です'))->name('reports.index');
-
-    Route::get('/notifications', fn () => abort(501, '通知一覧は未実装です'))->name('notifications.index');
-    Route::post('/notifications/{id}/read', fn () => abort(501, '通知の既読処理は未実装です'))->name('notifications.read');
 });
