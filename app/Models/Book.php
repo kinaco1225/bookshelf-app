@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -58,5 +59,46 @@ class Book extends Model
     public function favoritedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+    }
+
+    /**
+     * タイトル・著者の部分一致でキーワード検索する。$keyword が空なら絞り込まない。
+     */
+    public function scopeSearchKeyword(Builder $query, ?string $keyword): Builder
+    {
+        if (! $keyword) {
+            return $query;
+        }
+
+        return $query->where(
+            fn (Builder $query) => $query->where('title', 'like', "%{$keyword}%")
+                ->orWhere('author', 'like', "%{$keyword}%")
+        );
+    }
+
+    /**
+     * 指定ジャンルに紐づく書籍のみに絞り込む。$genreId が空なら絞り込まない。
+     */
+    public function scopeInGenre(Builder $query, int|string|null $genreId): Builder
+    {
+        if (! $genreId) {
+            return $query;
+        }
+
+        return $query->whereHas('genres', fn (Builder $query) => $query->where('genres.id', $genreId));
+    }
+
+    /**
+     * 並び順を適用する（newest（デフォルト）/oldest/title/rating）。
+     * rating を使う場合は事前に withAvg('reviews', 'rating') が必要。
+     */
+    public function scopeSortBy(Builder $query, ?string $sort): Builder
+    {
+        return match ($sort) {
+            'oldest' => $query->orderBy('created_at')->orderBy('id'),
+            'title' => $query->orderBy('title')->orderBy('id'),
+            'rating' => $query->orderByDesc('reviews_avg_rating')->orderBy('id'),
+            default => $query->orderByDesc('created_at')->orderByDesc('id'),
+        };
     }
 }
