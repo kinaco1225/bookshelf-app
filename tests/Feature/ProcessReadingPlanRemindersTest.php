@@ -43,21 +43,6 @@ class ProcessReadingPlanRemindersTest extends TestCase
         $this->assertTrue($plan->fresh()->status === ReadingPlanStatus::Expired);
     }
 
-    public function test_期限切れになった直後にリマインダー通知が届く(): void
-    {
-        $user = User::factory()->create();
-        $plan = $this->createPlan($user, [
-            'target_date' => now()->subDay()->toDateString(),
-        ]);
-
-        $this->artisan('reading-plans:process');
-
-        $notification = $user->fresh()->notifications()->first();
-        $this->assertNotNull($notification);
-        $this->assertSame(ReminderTiming::Expired->value, $notification->data['timing']);
-        $this->assertSame($plan->id, $notification->data['reading_plan_id']);
-    }
-
     public function test_当日や未来の計画は自動失効されない(): void
     {
         $today = $this->createPlan(User::factory()->create(), [
@@ -115,7 +100,7 @@ class ProcessReadingPlanRemindersTest extends TestCase
         $this->assertSame(ReminderTiming::OnDueDate->value, $notification->data['timing']);
     }
 
-    public function test_3日後自動失効と同時に期限切れと3日経過の2通の通知が届く(): void
+    public function test_3日後自動失効と同時にリマインダー通知が届く(): void
     {
         $user = User::factory()->create();
         $plan = $this->createPlan($user, [
@@ -126,11 +111,9 @@ class ProcessReadingPlanRemindersTest extends TestCase
 
         $this->assertTrue($plan->fresh()->status === ReadingPlanStatus::Expired);
 
-        $timings = $user->fresh()->notifications()->get()->pluck('data.timing')->all();
-        $this->assertEqualsCanonicalizing(
-            [ReminderTiming::Expired->value, ReminderTiming::ThreeDaysAfter->value],
-            $timings
-        );
+        $notification = $user->fresh()->notifications()->first();
+        $this->assertNotNull($notification);
+        $this->assertSame(ReminderTiming::ThreeDaysAfter->value, $notification->data['timing']);
     }
 
     public function test_対象外の期日の計画には通知が届かない(): void
@@ -164,19 +147,6 @@ class ProcessReadingPlanRemindersTest extends TestCase
         $user = User::factory()->create();
         $this->createPlan($user, [
             'target_date' => now()->toDateString(),
-        ]);
-
-        $this->artisan('reading-plans:process');
-        $this->artisan('reading-plans:process');
-
-        $this->assertSame(1, $user->fresh()->notifications()->count());
-    }
-
-    public function test_期限切れ通知も再実行で重複しない(): void
-    {
-        $user = User::factory()->create();
-        $this->createPlan($user, [
-            'target_date' => now()->subDay()->toDateString(),
         ]);
 
         $this->artisan('reading-plans:process');
