@@ -25,23 +25,22 @@ services:
             - mysql
     scheduler:
         build:
-            context: './vendor/laravel/sail/runtimes/8.5'
+            context: './docker/scheduler'
             dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        image: 'sail-8.5/app'
+        image: 'sail-8.5/scheduler'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
+            SUPERVISOR_PHP_USER: root
         volumes:
             - '.:/var/www/html'
         networks:
             - sail
         depends_on:
             - mysql
-        entrypoint: ['php', 'artisan', 'schedule:work']
+            - laravel.test
     mysql:
         image: 'mysql:8.4'
         ports:
