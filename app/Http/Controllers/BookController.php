@@ -6,6 +6,7 @@ use App\Http\Requests\BookRequest;
 use App\Models\Book;
 use App\Models\Genre;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BookController extends Controller
@@ -13,18 +14,37 @@ class BookController extends Controller
     /**
      * 書籍一覧（トップページ）を表示する。
      *
-     * 全書籍を id の昇順に 10 件ずつページネーションし、
-     * 各書籍にジャンルと平均評価を付与する。
+     * キーワード（タイトル・著者の部分一致）・ジャンルで絞り込み、
+     * 並び順（新しい順・古い順・タイトル順・評価順）を指定できる。
+     * 10 件ずつページネーションし、検索条件はページ遷移後も維持する。
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        $keyword = $request->query('keyword');
+        $genreId = $request->query('genre');
+        $sort = $request->query('sort', 'newest');
+
         $books = Book::query()
             ->with('genres')
             ->withAvg('reviews', 'rating')
-            ->orderBy('id')
-            ->paginate(10);
+            ->when($keyword, fn ($query) => $query->where(
+                fn ($query) => $query->where('title', 'like', "%{$keyword}%")
+                    ->orWhere('author', 'like', "%{$keyword}%")
+            ))
+            ->when($genreId, fn ($query) => $query->whereHas(
+                'genres', fn ($query) => $query->where('genres.id', $genreId)
+            ))
+            ->when($sort === 'oldest', fn ($query) => $query->orderBy('created_at')->orderBy('id'))
+            ->when($sort === 'title', fn ($query) => $query->orderBy('title')->orderBy('id'))
+            ->when($sort === 'rating', fn ($query) => $query->orderByDesc('reviews_avg_rating')->orderBy('id'))
+            ->when(! in_array($sort, ['oldest', 'title', 'rating'], true), fn ($query) => $query->orderByDesc('created_at')->orderByDesc('id'))
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('books.index', compact('books'));
+        return view('books.index', [
+            'books' => $books,
+            'genres' => Genre::orderBy('id')->get(),
+        ]);
     }
 
     /**
