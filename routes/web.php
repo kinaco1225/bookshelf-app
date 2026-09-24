@@ -6,6 +6,7 @@ use App\Http\Controllers\GenreController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReadingPlanController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use Illuminate\Support\Facades\Route;
@@ -90,13 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 });
 
-/*
-|--------------------------------------------------------------------------
-| 応用フェーズ（★）— プレースホルダ
-|--------------------------------------------------------------------------
-| 応用版 Blade（共有レイアウトのナビ等）が route() を解決できるよう、
-| 先に名前だけ登録している。実装は各機能に着手するときに差し替える。
-*/
-Route::middleware('auth')->group(function () {
-    Route::get('/reports', fn () => abort(501, 'マイ読書レポートは未実装です'))->name('reports.index');
-});
+// マイ読書レポート — 認証必須（ログインユーザー自身のレビューを集計）。
+Route::get('/reports', [ReportController::class, 'index'])
+    ->middleware('auth')
+    ->name('reports.index');
