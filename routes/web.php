@@ -28,9 +28,10 @@ Route::redirect('/books', '/');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 
 // 書籍の登録・編集・削除 — 認証必須。
-// 「/books/create」を「/books/{book}」より先に登録する必要があるためグループを前に置く。
+// 「/books/create」「/books/isbn/{isbn}」を「/books/{book}」より先に登録する必要があるためグループを前に置く。
 Route::middleware('auth')->group(function () {
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
+    Route::get('/books/isbn/{isbn}', [BookController::class, 'searchByIsbn'])->name('books.isbn-search');
     Route::post('/books', [BookController::class, 'store'])->name('books.store');
     // 編集・更新・削除は登録者本人のみ。認可は各コントローラで $this->authorize() で適用（BookPolicy）。
     Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
