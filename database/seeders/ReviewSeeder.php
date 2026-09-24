@@ -10,40 +10,37 @@ use Illuminate\Database\Seeder;
 class ReviewSeeder extends Seeder
 {
     /**
-     * レビューを合計32件投入する。
+     * レビューを書籍ごとに2〜4件投入する（登録者本人を除くユーザーからランダムに選出）。
      *
-     * - 各書籍に2〜4件（登録者本人を除く他ユーザーから）
-     * - rating は 3〜5
-     * - 採点者がいつ実行しても同じになるよう固定の割り当てにしている
+     * - rating は 1〜5 の全範囲（マイ読書レポートの評価分布グラフが意味のある分布になるように）
+     * - comment は評価ごとの日本語テンプレートからランダムに選ぶ
      */
     public function run(): void
     {
-        $userIds = User::orderBy('id')->pluck('id')->all();
-        $books = Book::orderBy('id')->get();
-
-        // 各書籍のレビュー件数（合計 32）
-        $counts = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2];
+        $users = User::all();
 
         $comments = [
-            3 => ['まずまずの内容でした。', '可もなく不可もなく。', '期待したほどではありませんが読む価値はあります。'],
-            4 => ['とても参考になりました。', '読みやすくおすすめできます。', '期待どおりの良書でした。'],
-            5 => ['素晴らしい一冊。何度も読み返したいです。', '読んでよかったと心から思える名著。', '文句なしにおすすめします。'],
+            1 => ['残念ながら合いませんでした。', '期待と違いました。'],
+            2 => ['少し期待外れでした。', '内容が薄い印象。', 'もう少し深掘りしてほしかった。'],
+            3 => ['普通でした。', '可もなく不可もなく。', '期待したほどではなかった。'],
+            4 => ['とても参考になりました。', '読みやすくておすすめです。', '期待通りの内容でした。'],
+            5 => ['素晴らしい本でした！', '人生が変わりました。', '何度も読み返しています。'],
         ];
 
-        foreach ($books as $index => $book) {
-            // 登録者本人はレビューしない
-            $pool = array_values(array_diff($userIds, [$book->user_id]));
+        Book::all()->each(function (Book $book) use ($users, $comments) {
+            $users
+                ->reject(fn (User $user) => $user->id === $book->user_id)
+                ->random(rand(2, 4))
+                ->each(function (User $reviewer) use ($book, $comments) {
+                    $rating = rand(1, 5);
 
-            for ($j = 0; $j < $counts[$index]; $j++) {
-                $rating = 3 + (($index + $j) % 3);
-
-                Review::create([
-                    'user_id' => $pool[($index + $j) % count($pool)],
-                    'book_id' => $book->id,
-                    'rating' => $rating,
-                    'comment' => $comments[$rating][$j % 3],
-                ]);
-            }
-        }
+                    Review::create([
+                        'user_id' => $reviewer->id,
+                        'book_id' => $book->id,
+                        'rating' => $rating,
+                        'comment' => collect($comments[$rating])->random(),
+                    ]);
+                });
+        });
     }
 }
