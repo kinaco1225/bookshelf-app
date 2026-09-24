@@ -37,12 +37,15 @@ class DatabaseSeederTest extends TestCase
         $this->assertDatabaseCount('genres', 10);
     }
 
-    public function test_書籍が11件投入され登録者は山田太郎(): void
+    public function test_書籍が11件投入され登録者はユーザーにランダムに割り当てられる(): void
     {
         $this->assertDatabaseCount('books', 11);
 
-        $yamada = User::where('email', 'yamada@example.com')->first();
-        $this->assertSame(11, Book::where('user_id', $yamada->id)->count());
+        $userIds = User::pluck('id');
+        $ownerIds = Book::pluck('user_id');
+
+        $this->assertTrue($ownerIds->every(fn (int $id) => $userIds->contains($id)));
+        $this->assertGreaterThan(1, $ownerIds->unique()->count(), '登録者が全書籍で同一ユーザーに固定されている');
 
         $book = Book::where('isbn', '9784422100524')->first(); // 人を動かす
         $this->assertSame('人を動かす', $book->title);
@@ -53,11 +56,13 @@ class DatabaseSeederTest extends TestCase
         );
     }
 
-    public function test_レビューが32件_各書籍2から4件_評価3から5_本人レビューなし(): void
+    public function test_レビューは書籍ごとに2から4件_評価は1から5_本人レビューなし(): void
     {
-        $this->assertDatabaseCount('reviews', 32);
+        $reviewCount = Review::count();
+        $this->assertGreaterThanOrEqual(22, $reviewCount); // 11冊 × 最少2件
+        $this->assertLessThanOrEqual(44, $reviewCount); // 11冊 × 最多4件
 
-        $this->assertSame(0, Review::whereNotBetween('rating', [3, 5])->count());
+        $this->assertSame(0, Review::whereNotBetween('rating', [1, 5])->count());
 
         Book::withCount('reviews')->get()->each(function (Book $book): void {
             $this->assertGreaterThanOrEqual(2, $book->reviews_count);

@@ -10,13 +10,14 @@ use Illuminate\Database\Seeder;
 class BookSeeder extends Seeder
 {
     /**
-     * 書籍データを11件投入する。登録者はすべて User::first()（山田太郎）。
+     * 書籍データを11件投入する。登録者はユーザーからランダムに割り当てる
+     * （マイ読書レポートで複数ユーザーの所有書籍を表示するため）。
      *
      * ISBN 重複を防ぐため firstOrCreate、ジャンル紐付けは genres()->sync() を使用する。
      */
     public function run(): void
     {
-        $owner = User::first();
+        $users = User::all();
         $genreIds = Genre::pluck('id', 'name');
 
         $books = [
@@ -114,7 +115,7 @@ class BookSeeder extends Seeder
             $book = Book::firstOrCreate(
                 ['isbn' => $data['isbn']],
                 [
-                    'user_id' => $owner->id,
+                    'user_id' => $users->random()->id,
                     'title' => $data['title'],
                     'author' => $data['author'],
                     'published_date' => $data['published_date'],
