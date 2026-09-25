@@ -41,43 +41,38 @@ class ProcessReadingPlanReminders extends Command
      */
     private function sendReminders(): int
     {
-        $targets = [
-            ReminderTiming::ThreeDaysBefore->value => [
+        $targets = collect([
+            [
+                'timing' => ReminderTiming::ThreeDaysBefore,
                 'date' => now()->addDays(3)->toDateString(),
                 'status' => ReadingPlanStatus::InProgress->value,
             ],
-            ReminderTiming::OnDueDate->value => [
+            [
+                'timing' => ReminderTiming::OnDueDate,
                 'date' => now()->toDateString(),
                 'status' => ReadingPlanStatus::InProgress->value,
             ],
-            ReminderTiming::ThreeDaysAfter->value => [
+            [
+                'timing' => ReminderTiming::ThreeDaysAfter,
                 'date' => now()->subDays(3)->toDateString(),
                 'status' => ReadingPlanStatus::Expired->value,
             ],
-        ];
+        ]);
 
-        $notifiedCount = 0;
-
-        foreach ($targets as $timingValue => $target) {
-            $timing = ReminderTiming::from($timingValue);
+        return $targets->sum(function (array $target): int {
+            $timing = $target['timing'];
 
             $plans = ReadingPlan::query()
                 ->where('status', $target['status'])
                 ->whereDate('target_date', $target['date'])
                 ->with(['user', 'book'])
-                ->get();
+                ->get()
+                ->reject(fn (ReadingPlan $plan) => $this->alreadyNotified($plan, $timing));
 
-            foreach ($plans as $plan) {
-                if ($this->alreadyNotified($plan, $timing)) {
-                    continue;
-                }
+            $plans->each(fn (ReadingPlan $plan) => $plan->user->notify(new ReadingPlanReminder($plan, $timing)));
 
-                $plan->user->notify(new ReadingPlanReminder($plan, $timing));
-                $notifiedCount++;
-            }
-        }
-
-        return $notifiedCount;
+            return $plans->count();
+        });
     }
 
     private function alreadyNotified(ReadingPlan $plan, ReminderTiming $timing): bool
