@@ -60,7 +60,7 @@ class UserTest extends TestCase
             'user_id' => $user->id,
             'book_id' => $this->makeBook(User::factory()->create())->id,
             'rating' => 3,
-            'comment' => null,
+            'comment' => 'テストコメント',
         ]);
 
         $this->assertTrue($user->books->contains($book));
@@ -75,7 +75,7 @@ class UserTest extends TestCase
             'user_id' => User::factory()->create()->id,
             'book_id' => $book->id,
             'rating' => 5,
-            'comment' => null,
+            'comment' => 'テストコメント',
         ]);
 
         $user->favoriteBooks()->attach($book->id);
