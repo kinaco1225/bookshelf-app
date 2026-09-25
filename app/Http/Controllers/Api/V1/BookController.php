@@ -48,15 +48,16 @@ class BookController extends Controller
     /**
      * 書籍を新規登録する。
      *
-     * POST /api/v1/books
+     * POST /api/v1/books（Sanctum 認証必須）
      *
-     * リクエストボディ: user_id（登録者ID・実在必須）, title, author, isbn（13桁・一意）,
+     * リクエストボディ: title, author, isbn（13桁・一意）,
      *   published_date, description（任意）, image_url（任意）, genres（1つ以上のジャンルID）
+     * 登録者は認証済みユーザー自身になる（user_id はクライアントから指定不可）。
      * 成功時は 201 Created と Location ヘッダ、作成した書籍を返す。
      */
     public function store(BookRequest $request): JsonResponse
     {
-        $book = Book::create($request->safe()->except('genres'));
+        $book = $request->user()->books()->create($request->safe()->except('genres'));
         $book->genres()->sync($request->validated('genres'));
 
         $book->load(['genres', 'reviews.user'])
@@ -93,13 +94,15 @@ class BookController extends Controller
     /**
      * 書籍を更新する。
      *
-     * PUT/PATCH /api/v1/books/{book}
+     * PUT/PATCH /api/v1/books/{book}（Sanctum 認証必須、所有者本人のみ）
      *
      * リクエストボディは登録と同一（全項目）。ISBN の一意性チェックは自身を除外。
      * 存在しないIDは 404 の JSON エラー（Handler で統一）。
      */
     public function update(BookRequest $request, Book $book): BookResource
     {
+        $this->authorize('update', $book);
+
         $book->update($request->safe()->except('genres'));
         $book->genres()->sync($request->validated('genres'));
 
@@ -113,7 +116,7 @@ class BookController extends Controller
     /**
      * 書籍を削除する。
      *
-     * DELETE /api/v1/books/{book}
+     * DELETE /api/v1/books/{book}（Sanctum 認証必須、所有者本人のみ）
      *
      * 関連データ（レビュー・お気に入り・ジャンル紐付け）は外部キーの
      * ON DELETE CASCADE で連動削除される。
@@ -121,6 +124,8 @@ class BookController extends Controller
      */
     public function destroy(Book $book): Response
     {
+        $this->authorize('delete', $book);
+
         $book->delete();
 
         return response()->noContent();

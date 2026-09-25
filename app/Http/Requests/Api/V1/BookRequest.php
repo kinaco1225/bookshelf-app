@@ -8,7 +8,8 @@ use Illuminate\Validation\Rule;
 class BookRequest extends FormRequest
 {
     /**
-     * 公開APIのため誰でも実行できる。
+     * 認証（Sanctum）はルート側、認可（BookPolicy、更新・削除は所有者のみ）は
+     * コントローラの $this->authorize() で適用するため、ここでは常に許可する。
      */
     public function authorize(): bool
     {
@@ -18,7 +19,7 @@ class BookRequest extends FormRequest
     /**
      * 書籍の登録・更新で共通のバリデーションルール。
      *
-     * Web版の書籍登録と同等のルールに加え、登録者ID（user_id）の妥当性を検証する。
+     * 登録者（user_id）は認証済みユーザーから自動設定するため、クライアントからは指定不可。
      * 更新時（ルートに {book} がある場合）は ISBN の一意性チェックから自身を除外する。
      *
      * @return array<string, mixed>
@@ -26,7 +27,6 @@ class BookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'integer', 'exists:users,id'],
             'title' => ['required', 'string', 'max:255'],
             'author' => ['required', 'string', 'max:255'],
             // 応用フェーズ: ISBN検索の自動入力に失敗しても登録できるよう nullable。
@@ -51,9 +51,6 @@ class BookRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.required' => '登録者IDを指定してください。',
-            'user_id.integer' => '登録者IDは整数で指定してください。',
-            'user_id.exists' => '指定された登録者は存在しません。',
             'title.required' => 'タイトルを入力してください。',
             'title.max' => 'タイトルは255文字以内で入力してください。',
             'author.required' => '著者を入力してください。',
@@ -77,7 +74,6 @@ class BookRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'user_id' => '登録者ID',
             'title' => 'タイトル',
             'author' => '著者',
             'isbn' => 'ISBN',
