@@ -70,7 +70,7 @@ class BookTest extends TestCase
             'user_id' => User::factory()->create()->id,
             'book_id' => $book->id,
             'rating' => 4,
-            'comment' => null,
+            'comment' => 'テストコメント',
         ]);
 
         $this->assertCount(1, $book->reviews);

@@ -37,7 +37,7 @@ class RankingTest extends TestCase
                 'user_id' => User::factory()->create()->id,
                 'book_id' => $book->id,
                 'rating' => $rating,
-                'comment' => null,
+                'comment' => 'テストコメント',
             ]);
         }
     }
