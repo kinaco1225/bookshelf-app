@@ -84,6 +84,14 @@ class RankingTest extends TestCase
             ->assertDontSee('レビューなし本');
     }
 
+    public function test_平均評価は小数点第2位までの四捨五入で表示される(): void
+    {
+        $book = $this->createBook('割り切れない評価の本');
+        $this->reviewBook($book, [5, 5, 4]); // 平均 14/3 = 4.6666... → 4.67
+
+        $this->get('/ranking')->assertSee('4.67');
+    }
+
     public function test_上位10冊までしか表示されない(): void
     {
         // 11冊すべて平均5.0。同点は登録順（id 昇順）で並ぶため、

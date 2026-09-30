@@ -59,7 +59,7 @@
                                         <div class="flex-shrink-0 ml-4">
                                             <div class="text-center">
                                                 <div class="text-2xl font-bold {{ $index < 3 ? 'text-yellow-500' : 'text-gray-600' }}">
-                                                    {{ number_format($book->reviews_avg_rating, 1) }}
+                                                    {{ number_format($book->reviews_avg_rating, 2) }}
                                                 </div>
                                                 <div class="text-xs text-gray-500">平均評価</div>
                                             </div>
