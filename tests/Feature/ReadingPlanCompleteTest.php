@@ -58,7 +58,7 @@ class ReadingPlanCompleteTest extends TestCase
         $response = $this->actingAs($owner)->post("/reading-plans/{$plan->id}/complete");
 
         $response->assertRedirect(route('reading-plans.index'));
-        $response->assertSessionHas('success', '読書計画を「完了」にしました。');
+        $response->assertSessionHas('success', '読書計画を「完了」にしました');
 
         $plan->refresh();
         $this->assertTrue($plan->status === ReadingPlanStatus::Completed);

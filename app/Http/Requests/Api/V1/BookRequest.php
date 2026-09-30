@@ -51,20 +51,20 @@ class BookRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required' => 'タイトルを入力してください。',
-            'title.max' => 'タイトルは255文字以内で入力してください。',
-            'author.required' => '著者を入力してください。',
-            'author.max' => '著者は255文字以内で入力してください。',
-            'isbn.regex' => 'ISBNは13桁の数字で入力してください。',
-            'isbn.unique' => 'このISBNの書籍はすでに登録されています。',
-            'published_date.date' => '出版日は正しい日付で入力してください。',
-            'image_url.url' => '画像URLは正しいURL形式で入力してください。',
-            'image_url.max' => '画像URLは2048文字以内で入力してください。',
-            'genres.required' => 'ジャンルを1つ以上指定してください。',
-            'genres.array' => 'ジャンルは配列で指定してください。',
-            'genres.min' => 'ジャンルを1つ以上指定してください。',
-            'genres.*.integer' => 'ジャンルIDは整数で指定してください。',
-            'genres.*.exists' => '指定されたジャンルは存在しません。',
+            'title.required' => 'タイトルを入力してください',
+            'title.max' => 'タイトルは255文字以内で入力してください',
+            'author.required' => '著者を入力してください',
+            'author.max' => '著者は255文字以内で入力してください',
+            'isbn.regex' => 'ISBNは13桁の数字で入力してください',
+            'isbn.unique' => 'このISBNの書籍はすでに登録されています',
+            'published_date.date' => '出版日は正しい日付で入力してください',
+            'image_url.url' => '画像URLは正しいURL形式で入力してください',
+            'image_url.max' => '画像URLは2048文字以内で入力してください',
+            'genres.required' => 'ジャンルを1つ以上指定してください',
+            'genres.array' => 'ジャンルは配列で指定してください',
+            'genres.min' => 'ジャンルを1つ以上指定してください',
+            'genres.*.integer' => 'ジャンルIDは整数で指定してください',
+            'genres.*.exists' => '指定されたジャンルは存在しません',
         ];
     }
 

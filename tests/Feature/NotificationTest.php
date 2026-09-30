@@ -109,7 +109,7 @@ class NotificationTest extends TestCase
         $response = $this->actingAs($user)->post("/notifications/{$notification->id}/read");
 
         $response->assertRedirect(route('notifications.index'));
-        $response->assertSessionHas('success', '通知を既読にしました。');
+        $response->assertSessionHas('success', '通知を既読にしました');
         $this->assertNotNull($notification->fresh()->read_at);
     }
 

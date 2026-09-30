@@ -82,7 +82,7 @@ class ReadingPlanUpdateTest extends TestCase
             ->put("/reading-plans/{$plan->id}", ['target_date' => $newDate]);
 
         $response->assertRedirect(route('reading-plans.index'));
-        $response->assertSessionHas('success', '読書計画を更新しました。');
+        $response->assertSessionHas('success', '読書計画を更新しました');
 
         $this->assertSame($newDate, $plan->fresh()->target_date->toDateString());
     }
@@ -116,7 +116,7 @@ class ReadingPlanUpdateTest extends TestCase
 
         $this->actingAs($owner)
             ->put("/reading-plans/{$plan->id}", [])
-            ->assertSessionHasErrors(['target_date' => '期日を入力してください。']);
+            ->assertSessionHasErrors(['target_date' => '期日を入力してください']);
     }
 
     public function test_期日は今日以降でなければならない(): void
@@ -126,7 +126,7 @@ class ReadingPlanUpdateTest extends TestCase
 
         $this->actingAs($owner)
             ->put("/reading-plans/{$plan->id}", ['target_date' => now()->subDay()->toDateString()])
-            ->assertSessionHasErrors(['target_date' => '期日は今日以降の日付を指定してください。']);
+            ->assertSessionHasErrors(['target_date' => '期日は今日以降の日付を指定してください']);
     }
 
     public function test_存在しない計画の編集は404(): void
@@ -146,7 +146,7 @@ class ReadingPlanUpdateTest extends TestCase
         $response = $this->actingAs($owner)->delete("/reading-plans/{$plan->id}");
 
         $response->assertRedirect(route('reading-plans.index'));
-        $response->assertSessionHas('success', '読書計画を削除しました。');
+        $response->assertSessionHas('success', '読書計画を削除しました');
         $this->assertDatabaseMissing('reading_plans', ['id' => $plan->id]);
     }
 

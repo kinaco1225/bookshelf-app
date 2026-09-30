@@ -80,7 +80,7 @@ class BookUpdateTest extends TestCase
             ->put("/books/{$book->id}", $this->payload([$genre->id]));
 
         $response->assertRedirect(route('books.show', $book));
-        $response->assertSessionHas('success', '書籍を更新しました。');
+        $response->assertSessionHas('success', '書籍を更新しました');
 
         $book->refresh();
         $this->assertSame('新しいタイトル', $book->title);
@@ -164,7 +164,7 @@ class BookUpdateTest extends TestCase
         $response = $this->actingAs($owner)->delete("/books/{$book->id}");
 
         $response->assertRedirect(route('books.index'));
-        $response->assertSessionHas('success', '書籍を削除しました。');
+        $response->assertSessionHas('success', '書籍を削除しました');
 
         $this->assertDatabaseMissing('books', ['id' => $book->id]);
         $this->assertDatabaseCount('reviews', 0);

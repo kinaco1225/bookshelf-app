@@ -66,7 +66,7 @@ class ReviewUpdateTest extends TestCase
             ->put("/reviews/{$review->id}", ['rating' => 5, 'comment' => '更新後のコメント']);
 
         $response->assertRedirect(route('books.show', $review->book_id));
-        $response->assertSessionHas('success', 'レビューを更新しました。');
+        $response->assertSessionHas('success', 'レビューを更新しました');
 
         $review->refresh();
         $this->assertSame(5, $review->rating);
@@ -103,7 +103,7 @@ class ReviewUpdateTest extends TestCase
         $response = $this->actingAs($author)->delete("/reviews/{$review->id}");
 
         $response->assertRedirect(route('books.show', $review->book_id));
-        $response->assertSessionHas('success', 'レビューを削除しました。');
+        $response->assertSessionHas('success', 'レビューを削除しました');
 
         $this->assertDatabaseMissing('reviews', ['id' => $review->id]);
         $this->assertDatabaseCount('review_likes', 0);

@@ -30,6 +30,6 @@ class NotificationController extends Controller
 
         return redirect()
             ->route('notifications.index')
-            ->with('success', '通知を既読にしました。');
+            ->with('success', '通知を既読にしました');
     }
 }

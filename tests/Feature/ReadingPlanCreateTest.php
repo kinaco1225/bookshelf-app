@@ -62,7 +62,7 @@ class ReadingPlanCreateTest extends TestCase
         ]);
 
         $response->assertRedirect(route('reading-plans.index'));
-        $response->assertSessionHas('success', '読書計画を作成しました。');
+        $response->assertSessionHas('success', '読書計画を作成しました');
 
         $plan = ReadingPlan::sole();
         $this->assertSame($user->id, $plan->user_id);
@@ -77,7 +77,7 @@ class ReadingPlanCreateTest extends TestCase
 
         $this->actingAs($user)
             ->post('/reading-plans', ['target_date' => now()->addDay()->toDateString()])
-            ->assertSessionHasErrors(['book_id' => '書籍を選択してください。']);
+            ->assertSessionHasErrors(['book_id' => '書籍を選択してください']);
 
         $this->assertDatabaseCount('reading_plans', 0);
     }
@@ -101,7 +101,7 @@ class ReadingPlanCreateTest extends TestCase
 
         $this->actingAs($user)
             ->post('/reading-plans', ['book_id' => $book->id])
-            ->assertSessionHasErrors(['target_date' => '期日を入力してください。']);
+            ->assertSessionHasErrors(['target_date' => '期日を入力してください']);
     }
 
     public function test_期日は今日以降でなければならない(): void
@@ -114,7 +114,7 @@ class ReadingPlanCreateTest extends TestCase
                 'book_id' => $book->id,
                 'target_date' => now()->subDay()->toDateString(),
             ])
-            ->assertSessionHasErrors(['target_date' => '期日は今日以降の日付を指定してください。']);
+            ->assertSessionHasErrors(['target_date' => '期日は今日以降の日付を指定してください']);
     }
 
     public function test_同じ書籍に進行中の計画がすでにあると重複エラー(): void
@@ -133,7 +133,7 @@ class ReadingPlanCreateTest extends TestCase
                 'book_id' => $book->id,
                 'target_date' => now()->addDays(10)->toDateString(),
             ])
-            ->assertSessionHasErrors(['book_id' => 'この書籍にはすでに進行中の読書計画があります。']);
+            ->assertSessionHasErrors(['book_id' => 'この書籍にはすでに進行中の読書計画があります']);
 
         $this->assertDatabaseCount('reading_plans', 1);
     }

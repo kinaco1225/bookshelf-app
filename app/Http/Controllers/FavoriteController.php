@@ -30,8 +30,8 @@ class FavoriteController extends Controller
         $result = $request->user()->favoriteBooks()->toggle($book->id);
 
         $message = filled($result['attached'])
-            ? 'お気に入りに追加しました。'
-            : 'お気に入りから外しました。';
+            ? 'お気に入りに追加しました'
+            : 'お気に入りから外しました';
 
         return back()->with('success', $message);
     }
