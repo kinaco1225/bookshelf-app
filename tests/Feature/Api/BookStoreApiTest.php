@@ -129,7 +129,7 @@ class BookStoreApiTest extends TestCase
 
         $this->postJson('/api/v1/books', $this->payload([$genre->id], ['title' => '']))
             ->assertUnprocessable()
-            ->assertJsonPath('errors.title.0', 'タイトルを入力してください。');
+            ->assertJsonPath('errors.title.0', 'タイトルを入力してください');
         $this->assertDatabaseCount('books', 0);
     }
 
@@ -157,7 +157,7 @@ class BookStoreApiTest extends TestCase
 
         $this->postJson('/api/v1/books', $this->payload([$genre->id]))
             ->assertUnprocessable()
-            ->assertJsonPath('errors.isbn.0', 'このISBNの書籍はすでに登録されています。');
+            ->assertJsonPath('errors.isbn.0', 'このISBNの書籍はすでに登録されています');
         $this->assertDatabaseCount('books', 1);
     }
 

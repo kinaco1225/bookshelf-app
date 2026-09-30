@@ -86,6 +86,6 @@ class BookDestroyApiTest extends TestCase
 
         $this->deleteJson('/api/v1/books/999999')
             ->assertNotFound()
-            ->assertExactJson(['message' => '指定されたリソースが見つかりません。']);
+            ->assertExactJson(['message' => '指定されたリソースが見つかりません']);
     }
 }

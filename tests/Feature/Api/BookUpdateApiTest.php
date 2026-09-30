@@ -127,7 +127,7 @@ class BookUpdateApiTest extends TestCase
 
         $this->putJson('/api/v1/books/999999', $this->payload([$genre->id]))
             ->assertNotFound()
-            ->assertExactJson(['message' => '指定されたリソースが見つかりません。']);
+            ->assertExactJson(['message' => '指定されたリソースが見つかりません']);
     }
 
     public function test_isbnを変えずに更新できる_一意性チェックで自身を除外(): void
@@ -160,7 +160,7 @@ class BookUpdateApiTest extends TestCase
             ['isbn' => '9784999999992'],
         ))
             ->assertUnprocessable()
-            ->assertJsonPath('errors.isbn.0', 'このISBNの書籍はすでに登録されています。');
+            ->assertJsonPath('errors.isbn.0', 'このISBNの書籍はすでに登録されています');
     }
 
     public function test_必須項目が欠けると422で日本語メッセージ(): void
@@ -174,7 +174,7 @@ class BookUpdateApiTest extends TestCase
             ['title' => ''],
         ))
             ->assertUnprocessable()
-            ->assertJsonPath('errors.title.0', 'タイトルを入力してください。');
+            ->assertJsonPath('errors.title.0', 'タイトルを入力してください');
 
         $this->assertSame('元のタイトル', $book->fresh()->title);
     }

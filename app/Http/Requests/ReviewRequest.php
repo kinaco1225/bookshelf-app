@@ -35,11 +35,11 @@ class ReviewRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'rating.required' => '評価を選択してください。',
-            'rating.integer' => '評価は数値で選択してください。',
-            'rating.between' => '評価は1〜5で選択してください。',
-            'comment.required' => 'コメントは必須です。',
-            'comment.max' => 'コメントは1000文字以内で入力してください。',
+            'rating.required' => '評価を選択してください',
+            'rating.integer' => '評価は数値で選択してください',
+            'rating.between' => '評価は1〜5で選択してください',
+            'comment.required' => 'コメントは必須です',
+            'comment.max' => 'コメントは1000文字以内で入力してください',
         ];
     }
 
@@ -73,7 +73,7 @@ class ReviewRequest extends FormRequest
                 ->exists();
 
             if ($alreadyReviewed) {
-                $validator->errors()->add('rating', 'この書籍にはすでにレビューを投稿しています。');
+                $validator->errors()->add('rating', 'この書籍にはすでにレビューを投稿しています');
             }
         });
     }

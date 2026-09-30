@@ -78,7 +78,7 @@ class BookController extends Controller
 
         return redirect()
             ->route('books.show', $book)
-            ->with('success', '書籍を登録しました。');
+            ->with('success', '書籍を登録しました');
     }
 
     /**
@@ -108,7 +108,7 @@ class BookController extends Controller
 
         return redirect()
             ->route('books.show', $book)
-            ->with('success', '書籍を更新しました。');
+            ->with('success', '書籍を更新しました');
     }
 
     /**
@@ -122,7 +122,7 @@ class BookController extends Controller
 
         return redirect()
             ->route('books.index')
-            ->with('success', '書籍を削除しました。');
+            ->with('success', '書籍を削除しました');
     }
 
     /**
@@ -131,17 +131,17 @@ class BookController extends Controller
     public function searchByIsbn(string $isbn, GoogleBooksService $googleBooks): JsonResponse
     {
         if (! preg_match('/^\d{13}$/', $isbn)) {
-            return response()->json(['error' => 'ISBNは13桁の数字で入力してください。'], 422);
+            return response()->json(['error' => 'ISBNは13桁の数字で入力してください'], 422);
         }
 
         try {
             $book = $googleBooks->findByIsbn($isbn);
         } catch (\Throwable) {
-            return response()->json(['error' => '書籍情報の取得に失敗しました。しばらくしてから再度お試しください。'], 502);
+            return response()->json(['error' => '書籍情報の取得に失敗しました。しばらくしてから再度お試しください'], 502);
         }
 
         if ($book === null) {
-            return response()->json(['error' => '該当する書籍が見つかりませんでした。'], 404);
+            return response()->json(['error' => '該当する書籍が見つかりませんでした'], 404);
         }
 
         return response()->json($book);

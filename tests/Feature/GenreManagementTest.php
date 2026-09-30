@@ -90,7 +90,7 @@ class GenreManagementTest extends TestCase
 
         $this->post('/genres', ['name' => 'ライトノベル'])
             ->assertRedirect(route('genres.index'))
-            ->assertSessionHas('success', 'ジャンルを作成しました。');
+            ->assertSessionHas('success', 'ジャンルを作成しました');
 
         $this->assertDatabaseHas('genres', ['name' => 'ライトノベル']);
     }
@@ -138,7 +138,7 @@ class GenreManagementTest extends TestCase
 
         $this->put("/genres/{$genre->id}", ['name' => '文芸'])
             ->assertRedirect(route('genres.index'))
-            ->assertSessionHas('success', 'ジャンルを更新しました。');
+            ->assertSessionHas('success', 'ジャンルを更新しました');
 
         $this->assertSame('文芸', $genre->fresh()->name);
     }
@@ -171,7 +171,7 @@ class GenreManagementTest extends TestCase
 
         $this->delete("/genres/{$genre->id}")
             ->assertRedirect(route('genres.index'))
-            ->assertSessionHas('success', 'ジャンルを削除しました。');
+            ->assertSessionHas('success', 'ジャンルを削除しました');
 
         $this->assertDatabaseMissing('genres', ['id' => $genre->id]);
     }
@@ -183,7 +183,7 @@ class GenreManagementTest extends TestCase
         $this->bookInGenre($genre);
 
         $this->delete("/genres/{$genre->id}")
-            ->assertSessionHas('error', '書籍が紐づいているジャンルは削除できません。');
+            ->assertSessionHas('error', '書籍が紐づいているジャンルは削除できません');
 
         $this->assertDatabaseHas('genres', ['id' => $genre->id]);
     }

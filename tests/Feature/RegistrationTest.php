@@ -37,13 +37,13 @@ class RegistrationTest extends TestCase
     public function test_名前は必須(): void
     {
         $this->post('/register', $this->validInput(['name' => '']))
-            ->assertSessionHasErrors(['name' => 'お名前を入力してください。']);
+            ->assertSessionHasErrors(['name' => 'お名前を入力してください']);
     }
 
     public function test_メールアドレスの形式が不正だとエラー(): void
     {
         $this->post('/register', $this->validInput(['email' => 'not-an-email']))
-            ->assertSessionHasErrors(['email' => 'メールアドレスの形式が正しくありません。']);
+            ->assertSessionHasErrors(['email' => 'メールアドレスの形式が正しくありません']);
     }
 
     public function test_メールアドレスは重複できない(): void
@@ -51,7 +51,7 @@ class RegistrationTest extends TestCase
         User::factory()->create(['email' => 'taro@example.com']);
 
         $this->post('/register', $this->validInput())
-            ->assertSessionHasErrors(['email' => 'このメールアドレスは既に登録されています。']);
+            ->assertSessionHasErrors(['email' => 'このメールアドレスは既に登録されています']);
     }
 
     public function test_パスワードは8文字以上(): void
@@ -59,13 +59,13 @@ class RegistrationTest extends TestCase
         $this->post('/register', $this->validInput([
             'password' => 'short',
             'password_confirmation' => 'short',
-        ]))->assertSessionHasErrors(['password' => 'パスワードは8文字以上で入力してください。']);
+        ]))->assertSessionHasErrors(['password' => 'パスワードは8文字以上で入力してください']);
     }
 
     public function test_パスワードは確認用と一致する必要がある(): void
     {
         $this->post('/register', $this->validInput([
             'password_confirmation' => 'different123',
-        ]))->assertSessionHasErrors(['password' => 'パスワード（確認用）が一致しません。']);
+        ]))->assertSessionHasErrors(['password' => 'パスワード（確認用）が一致しません']);
     }
 }

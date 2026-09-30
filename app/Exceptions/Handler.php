@@ -34,7 +34,7 @@ class Handler extends ExceptionHandler
         $this->renderable(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json([
-                    'message' => '指定されたリソースが見つかりません。',
+                    'message' => '指定されたリソースが見つかりません',
                 ], 404);
             }
         });
