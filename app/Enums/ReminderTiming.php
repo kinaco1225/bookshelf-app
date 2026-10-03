@@ -20,9 +20,9 @@ enum ReminderTiming: string
     public function body(string $bookTitle): string
     {
         return match ($this) {
-            self::ThreeDaysBefore => "『{$bookTitle}』の期日まであと3日です。",
-            self::OnDueDate => "『{$bookTitle}』の期日は本日です。",
-            self::ThreeDaysAfter => "『{$bookTitle}』の期日から3日が経過しました。",
+            self::ThreeDaysBefore => "『{$bookTitle}』の期日まであと3日です",
+            self::OnDueDate => "『{$bookTitle}』の期日は本日です",
+            self::ThreeDaysAfter => "『{$bookTitle}』の期日から3日が経過し、計画は「期限切れ」になりました",
         };
     }
 }
