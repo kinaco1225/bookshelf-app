@@ -76,6 +76,15 @@ DB_PASSWORD=password
 
 > `DB_HOST` は `localhost` や `127.0.0.1` ではなく、Docker コンテナ名の `mysql` を指定します。
 
+ISBN 検索（Google Books API）を使う場合は、API キーも設定してください。
+
+```env
+GOOGLE_BOOKS_API_KEY=取得したAPIキー
+```
+
+> API キーなしでも動作しますが、Google の共有の利用枠を使うため、上限（429 エラー）に達して「書籍情報の取得に失敗しました」と表示されることがあります。
+> API キーは [Google Cloud コンソール](https://console.cloud.google.com/) で Books API を有効にし、「API とサービス」→「認証情報」から発行できます（無料）。
+
 ### 4. Sail の起動
 
 `scheduler` コンテナはアプリ本体のイメージを元にビルドするため、先に `laravel.test` をビルドしてから起動します。

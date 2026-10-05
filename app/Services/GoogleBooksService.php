@@ -16,7 +16,11 @@ class GoogleBooksService
      */
     public function findByIsbn(string $isbn): ?array
     {
-        $response = Http::get(self::ENDPOINT, ['q' => "isbn:{$isbn}"]);
+        // API キーが設定されていればキー付きでリクエストする（キーなしは共有の利用枠のため上限に達しやすい）。
+        $response = Http::get(self::ENDPOINT, array_filter([
+            'q' => "isbn:{$isbn}",
+            'key' => config('services.google_books.key'),
+        ]));
 
         if ($response->failed()) {
             throw new \RuntimeException('Google Books API へのリクエストに失敗しました。');
