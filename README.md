@@ -121,10 +121,10 @@ sail artisan migrate --seed
 
 ```bash
 sail npm install
-sail npm run dev
+sail npm run build
 ```
 
-開発中は `sail npm run dev` を実行したままにしてください。
+> 開発中に Blade や CSS を変更する場合は、`sail npm run build` の代わりに `sail npm run dev` を実行したままにしてください。
 
 ## 開発環境 URL
 
