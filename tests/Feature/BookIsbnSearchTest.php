@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -112,5 +113,29 @@ class BookIsbnSearchTest extends TestCase
 
         $response->assertStatus(502);
         $response->assertJsonStructure(['error']);
+    }
+
+    public function test_apiキーが設定されている場合はキー付きでリクエストする(): void
+    {
+        config(['services.google_books.key' => 'test-api-key']);
+        $this->fakeGoogleBooksResponse(['totalItems' => 0, 'items' => []]);
+
+        $this->actingAs(User::factory()->create())
+            ->getJson('/books/isbn/9784101010014');
+
+        Http::assertSent(fn (Request $request) => $request['key'] === 'test-api-key'
+            && $request['q'] === 'isbn:9784101010014');
+    }
+
+    public function test_apiキーが未設定の場合はキーなしでリクエストする(): void
+    {
+        config(['services.google_books.key' => null]);
+        $this->fakeGoogleBooksResponse(['totalItems' => 0, 'items' => []]);
+
+        $this->actingAs(User::factory()->create())
+            ->getJson('/books/isbn/9784101010014');
+
+        Http::assertSent(fn (Request $request) => ! isset($request['key'])
+            && $request['q'] === 'isbn:9784101010014');
     }
 }

@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // ISBN検索（Google Books API）。未設定の場合はキーなしでリクエストする。
+    'google_books' => [
+        'key' => env('GOOGLE_BOOKS_API_KEY'),
+    ],
+
 ];
