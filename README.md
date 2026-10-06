@@ -85,6 +85,10 @@ GOOGLE_BOOKS_API_KEY=取得したAPIキー
 > API キーなしでも動作しますが、Google の共有の利用枠を使うため、上限（429 エラー）に達して「書籍情報の取得に失敗しました」と表示されることがあります。
 > API キーは [Google Cloud コンソール](https://console.cloud.google.com/) で Books API を有効にし、「API とサービス」→「認証情報」から発行できます（無料）。
 
+> **ISBN 検索の動作確認について**
+> 2026年10月時点で、API キーを設定した状態でも、Google Books API の `isbn:` 検索が 0 件を返す事象を確認しています（応答は 200。Google Books 側に ISBN が登録されている書籍でも 0 件）。この場合、画面には「該当する書籍が見つかりませんでした」と表示されます。
+> 書籍情報の取得・整形とエラー時のレスポンス（401 / 422 / 404 / 502）は、Google Books API の応答を模擬した `tests/Feature/BookIsbnSearchTest.php` で検証しています（`sail artisan test --filter=BookIsbnSearchTest`）。
+
 ### 4. Sail の起動
 
 `scheduler` コンテナはアプリ本体のイメージを元にビルドするため、先に `laravel.test` をビルドしてから起動します。
