@@ -91,10 +91,7 @@ GOOGLE_BOOKS_API_KEY=取得したAPIキー
 
 ### 4. Sail の起動
 
-`scheduler` コンテナはアプリ本体のイメージを元にビルドするため、先に `laravel.test` をビルドしてから起動します。
-
 ```bash
-./vendor/bin/sail build laravel.test
 ./vendor/bin/sail up -d
 ```
 
@@ -179,15 +176,31 @@ App\Models\User::where('email', 'yamada@example.com')->first()->createToken('api
 
 ## 読書計画の日次バッチ
 
-`scheduler` コンテナの cron が毎分 `schedule:run` を実行し、毎日 20:00 に以下のバッチが動きます。
+Console Command（`reading-plans:process`）として実装し、Laravel の Schedule に毎日 20:00 実行で登録しています（`app/Console/Kernel.php`）。バッチの内容は以下のとおりです。
 
 - 期日を過ぎた「進行中」の計画を「期限切れ」に変更
 - 期日の3日前・当日・3日後にリマインダー通知を送信
 
-時刻を待たずに確認する場合は、手動で実行できます。
+### 動作確認（手動実行）
+
+時刻を待たずにすぐ確認できます。
 
 ```bash
 sail artisan reading-plans:process
+```
+
+### Schedule 経由での実行
+
+以下を実行したままにすると、1分ごとに Schedule を確認し、20:00 にバッチが実行されます。
+
+```bash
+sail artisan schedule:work
+```
+
+本番環境では、cron に以下を登録して1分ごとに `schedule:run` を実行します。
+
+```cron
+* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 ## テスト
