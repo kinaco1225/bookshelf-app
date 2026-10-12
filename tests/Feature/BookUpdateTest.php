@@ -87,7 +87,7 @@ class BookUpdateTest extends TestCase
         $this->assertSame([$genre->id], $book->genres->pluck('id')->all());
     }
 
-    public function test_更新時もisbnと出版日は任意項目(): void
+    public function test_更新時も出版日は任意項目(): void
     {
         $owner = User::factory()->create();
         $book = $this->createBook($owner);
@@ -95,13 +95,26 @@ class BookUpdateTest extends TestCase
         $this->actingAs($owner)
             ->put("/books/{$book->id}", $this->payload(
                 $book->genres->pluck('id')->all(),
-                ['isbn' => '', 'published_date' => ''],
+                ['published_date' => ''],
             ))
             ->assertRedirect(route('books.show', $book));
 
-        $book->refresh();
-        $this->assertNull($book->isbn);
-        $this->assertNull($book->published_date);
+        $this->assertNull($book->fresh()->published_date);
+    }
+
+    public function test_更新時もisbnは必須(): void
+    {
+        $owner = User::factory()->create();
+        $book = $this->createBook($owner);
+
+        $this->actingAs($owner)
+            ->put("/books/{$book->id}", $this->payload(
+                $book->genres->pluck('id')->all(),
+                ['isbn' => ''],
+            ))
+            ->assertSessionHasErrors(['isbn' => 'ISBNを入力してください']);
+
+        $this->assertNotNull($book->fresh()->isbn);
     }
 
     public function test_他人は書籍を更新できず403(): void
