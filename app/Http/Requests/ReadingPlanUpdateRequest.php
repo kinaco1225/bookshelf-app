@@ -36,8 +36,8 @@ class ReadingPlanUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'target_date.required' => '期日を入力してください',
-            'target_date.date' => '期日は正しい日付で入力してください',
+            'target_date.required' => '期日は必須です',
+            'target_date.date' => '期日は有効な日付形式で入力してください',
             'target_date.after_or_equal' => '期日は今日以降の日付を指定してください',
         ];
     }
@@ -70,7 +70,7 @@ class ReadingPlanUpdateRequest extends FormRequest
                 ->exists();
 
             if ($alreadyInProgress) {
-                $validator->errors()->add('target_date', 'この書籍にはすでに進行中の読書計画があります');
+                $validator->errors()->add('target_date', 'この書籍は既に進行中の読書計画が存在します');
             }
         });
     }

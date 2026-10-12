@@ -101,7 +101,17 @@ class ReadingPlanCreateTest extends TestCase
 
         $this->actingAs($user)
             ->post('/reading-plans', ['book_id' => $book->id])
-            ->assertSessionHasErrors(['target_date' => '期日を入力してください']);
+            ->assertSessionHasErrors(['target_date' => '期日は必須です']);
+    }
+
+    public function test_期日は有効な日付形式でなければならない(): void
+    {
+        $user = User::factory()->create();
+        $book = $this->createBook();
+
+        $this->actingAs($user)
+            ->post('/reading-plans', ['book_id' => $book->id, 'target_date' => 'not-a-date'])
+            ->assertSessionHasErrors(['target_date' => '期日は有効な日付形式で入力してください']);
     }
 
     public function test_期日は今日以降でなければならない(): void
@@ -133,7 +143,7 @@ class ReadingPlanCreateTest extends TestCase
                 'book_id' => $book->id,
                 'target_date' => now()->addDays(10)->toDateString(),
             ])
-            ->assertSessionHasErrors(['book_id' => 'この書籍にはすでに進行中の読書計画があります']);
+            ->assertSessionHasErrors(['book_id' => 'この書籍は既に進行中の読書計画が存在します']);
 
         $this->assertDatabaseCount('reading_plans', 1);
     }
