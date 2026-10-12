@@ -21,11 +21,13 @@
     <polyline points="990,110 1360,110" marker-start="url(#one)" marker-end="url(#many)"></polyline>
     <polyline points="850,248 850,498" marker-start="url(#one)" marker-end="url(#many)"></polyline>
     <polyline points="700,200 370,200 370,632 340,632" marker-start="url(#one)" marker-end="url(#many)"></polyline>
-    <polyline points="700,180 660,180 660,1045 700,1045" marker-start="url(#one)" marker-end="url(#many)"></polyline>
+    <polyline points="990,215 1010,215 1010,1017 990,1017" marker-start="url(#one)" marker-end="url(#many)"></polyline>
     <polyline points="700,225 380,225 380,1000 400,1000" marker-start="url(#one)" marker-end="url(#many)"></polyline>
     <polyline points="990,540 1020,540 1020,556 1050,556" marker-start="url(#one)" marker-end="url(#many)"></polyline>
     <polyline points="1360,570 1330,570 1330,556 1300,556" marker-start="url(#one)" marker-end="url(#many)"></polyline>
-    <polyline points="700,545 650,570" marker-start="url(#one)" marker-end="url(#many)"></polyline>
+    <polyline points="700,559 685,559 685,589 650,589" marker-start="url(#one)" marker-end="url(#many)"></polyline>
+    <polyline points="700,165 670,165 670,559 650,559" marker-start="url(#one)" marker-end="url(#many)"></polyline>
+    <polyline points="700,987 680,987 680,1017 650,1017" marker-start="url(#one)" marker-end="url(#many)"></polyline>
     <polyline points="700,745 340,745" marker-start="url(#one)" marker-end="url(#many)"></polyline>
     <polyline points="850,796 850,926" marker-start="url(#one)" marker-end="url(#many)"></polyline>
   </g>
