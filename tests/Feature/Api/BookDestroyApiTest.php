@@ -43,7 +43,9 @@ class BookDestroyApiTest extends TestCase
         $book = $this->createBook(User::factory()->create());
         Sanctum::actingAs(User::factory()->create());
 
-        $this->deleteJson("/api/v1/books/{$book->id}")->assertForbidden();
+        $this->deleteJson("/api/v1/books/{$book->id}")
+            ->assertForbidden()
+            ->assertExactJson(['error' => 'この書籍を操作する権限がありません']);
 
         $this->assertDatabaseHas('books', ['id' => $book->id]);
     }
@@ -86,6 +88,6 @@ class BookDestroyApiTest extends TestCase
 
         $this->deleteJson('/api/v1/books/999999')
             ->assertNotFound()
-            ->assertExactJson(['message' => '指定されたリソースが見つかりません']);
+            ->assertExactJson(['error' => '書籍が見つかりませんでした']);
     }
 }

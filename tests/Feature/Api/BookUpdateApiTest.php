@@ -61,7 +61,8 @@ class BookUpdateApiTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
 
         $this->putJson("/api/v1/books/{$book->id}", $this->payload($book->genres->pluck('id')->all()))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertExactJson(['error' => 'この書籍を操作する権限がありません']);
 
         $this->assertSame('元のタイトル', $book->fresh()->title);
     }
@@ -133,7 +134,7 @@ class BookUpdateApiTest extends TestCase
 
         $this->putJson('/api/v1/books/999999', $this->payload([$genre->id]))
             ->assertNotFound()
-            ->assertExactJson(['message' => '指定されたリソースが見つかりません']);
+            ->assertExactJson(['error' => '書籍が見つかりませんでした']);
     }
 
     public function test_isbnを変えずに更新できる_一意性チェックで自身を除外(): void
