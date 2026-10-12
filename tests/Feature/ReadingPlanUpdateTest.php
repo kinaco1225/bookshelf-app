@@ -109,6 +109,58 @@ class ReadingPlanUpdateTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_期限切れの計画は期日を変更すると進行中に戻る(): void
+    {
+        $owner = User::factory()->create();
+        $plan = $this->createPlan($owner, [
+            'target_date' => now()->subDays(3)->toDateString(),
+            'status' => ReadingPlanStatus::Expired,
+        ]);
+        $newDate = now()->addDays(10)->toDateString();
+
+        $response = $this->actingAs($owner)
+            ->put("/reading-plans/{$plan->id}", ['target_date' => $newDate]);
+
+        $response->assertRedirect(route('reading-plans.index'));
+        $response->assertSessionHas('success', '読書計画を更新しました');
+
+        $plan->refresh();
+        $this->assertSame(ReadingPlanStatus::InProgress, $plan->status);
+        $this->assertSame($newDate, $plan->target_date->toDateString());
+    }
+
+    public function test_同じ書籍に進行中の計画があると期限切れの計画は進行中に戻せない(): void
+    {
+        $owner = User::factory()->create();
+        $expired = $this->createPlan($owner, [
+            'target_date' => now()->subDays(3)->toDateString(),
+            'status' => ReadingPlanStatus::Expired,
+        ]);
+        ReadingPlan::create([
+            'user_id' => $owner->id,
+            'book_id' => $expired->book_id,
+            'target_date' => now()->addDays(5)->toDateString(),
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        $this->actingAs($owner)
+            ->put("/reading-plans/{$expired->id}", ['target_date' => now()->addDays(10)->toDateString()])
+            ->assertSessionHasErrors(['target_date' => 'この書籍にはすでに進行中の読書計画があります']);
+
+        $this->assertSame(ReadingPlanStatus::Expired, $expired->fresh()->status);
+    }
+
+    public function test_進行中の計画は自身を除いて重複チェックされ更新できる(): void
+    {
+        $owner = User::factory()->create();
+        $plan = $this->createPlan($owner);
+
+        $this->actingAs($owner)
+            ->put("/reading-plans/{$plan->id}", ['target_date' => now()->addDays(10)->toDateString()])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('reading-plans.index'));
+    }
+
     public function test_期日は必須(): void
     {
         $owner = User::factory()->create();

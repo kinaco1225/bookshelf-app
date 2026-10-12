@@ -77,12 +77,18 @@ class ReadingPlanController extends Controller
 
     /**
      * 読書計画を更新する（期日のみ変更可）。
+     *
+     * 期日は今日以降しか指定できないため、期限切れの計画は期日の変更に合わせて「進行中」に戻す。
+     * 完了済みの計画はそもそも更新できない（ReadingPlanPolicy）。
      */
     public function update(ReadingPlanUpdateRequest $request, ReadingPlan $readingPlan): RedirectResponse
     {
         $this->authorize('update', $readingPlan);
 
-        $readingPlan->update($request->validated());
+        $readingPlan->update([
+            'target_date' => $request->validated('target_date'),
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
 
         return redirect()
             ->route('reading-plans.index')
