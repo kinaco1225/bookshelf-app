@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Enums\ReadingPlanStatus;
+use App\Enums\ReminderTiming;
 use App\Models\Book;
 use App\Models\ReadingPlan;
 use App\Models\User;
+use App\Notifications\ReadingPlanReminder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -200,6 +202,45 @@ class ReadingPlanUpdateTest extends TestCase
         $response->assertRedirect(route('reading-plans.index'));
         $response->assertSessionHas('success', '読書計画を削除しました');
         $this->assertDatabaseMissing('reading_plans', ['id' => $plan->id]);
+    }
+
+    public function test_計画を削除すると関連するリマインダー通知も削除される(): void
+    {
+        $owner = User::factory()->create();
+        $plan = $this->createPlan($owner);
+        $otherPlan = $this->createPlan($owner);
+        $owner->notify(new ReadingPlanReminder($plan, ReminderTiming::ThreeDaysBefore));
+        $owner->notify(new ReadingPlanReminder($plan, ReminderTiming::OnDueDate));
+        $owner->notify(new ReadingPlanReminder($otherPlan, ReminderTiming::ThreeDaysBefore));
+
+        $this->actingAs($owner)
+            ->delete("/reading-plans/{$plan->id}")
+            ->assertRedirect(route('reading-plans.index'));
+
+        $this->assertSame(0, $owner->notifications()->where('data->reading_plan_id', $plan->id)->count());
+        // 他の計画の通知は残る
+        $this->assertSame(1, $owner->notifications()->where('data->reading_plan_id', $otherPlan->id)->count());
+    }
+
+    public function test_計画の削除に失敗した場合は通知の削除も取り消される(): void
+    {
+        $owner = User::factory()->create();
+        $plan = $this->createPlan($owner);
+        $owner->notify(new ReadingPlanReminder($plan, ReminderTiming::ThreeDaysBefore));
+
+        // 通知を削除した後、計画の削除で例外が起きる状況を作る
+        ReadingPlan::deleting(fn () => throw new \RuntimeException('削除に失敗'));
+
+        $this->withoutExceptionHandling();
+        try {
+            $this->actingAs($owner)->delete("/reading-plans/{$plan->id}");
+            $this->fail('例外が発生しませんでした');
+        } catch (\RuntimeException) {
+            // 想定どおり
+        }
+
+        $this->assertDatabaseHas('reading_plans', ['id' => $plan->id]);
+        $this->assertSame(1, $owner->notifications()->where('data->reading_plan_id', $plan->id)->count());
     }
 
     public function test_他人は削除できず403(): void

@@ -9,6 +9,7 @@ use App\Models\Book;
 use App\Models\ReadingPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReadingPlanController extends Controller
@@ -97,12 +98,21 @@ class ReadingPlanController extends Controller
 
     /**
      * 読書計画を削除する（状態は問わない）。
+     *
+     * 計画に紐づくリマインダー通知も同時に削除する。どちらかだけが削除されないよう、
+     * 1つのトランザクションで実行する。
      */
     public function destroy(ReadingPlan $readingPlan): RedirectResponse
     {
         $this->authorize('delete', $readingPlan);
 
-        $readingPlan->delete();
+        DB::transaction(function () use ($readingPlan): void {
+            $readingPlan->user->notifications()
+                ->where('data->reading_plan_id', $readingPlan->id)
+                ->delete();
+
+            $readingPlan->delete();
+        });
 
         return redirect()
             ->route('reading-plans.index')
