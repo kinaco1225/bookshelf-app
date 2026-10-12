@@ -100,24 +100,30 @@ class BookUpdateApiTest extends TestCase
         $this->assertSame($owner->id, $book->fresh()->user_id);
     }
 
-    public function test_isbnと出版日は空にできる(): void
+    public function test_出版日は空にできる(): void
     {
         $owner = User::factory()->create();
         $book = $this->createBook($owner);
         Sanctum::actingAs($owner);
 
-        $response = $this->putJson("/api/v1/books/{$book->id}", $this->payload(
+        $this->putJson("/api/v1/books/{$book->id}", $this->payload(
             $book->genres->pluck('id')->all(),
-            ['isbn' => null, 'published_date' => null],
-        ));
+            ['published_date' => null],
+        ))->assertOk()->assertJsonPath('data.published_date', null);
 
-        $response->assertOk()
-            ->assertJsonPath('data.isbn', null)
-            ->assertJsonPath('data.published_date', null);
+        $this->assertNull($book->fresh()->published_date);
+    }
 
-        $book->refresh();
-        $this->assertNull($book->isbn);
-        $this->assertNull($book->published_date);
+    public function test_isbnは空にできない(): void
+    {
+        $owner = User::factory()->create();
+        $book = $this->createBook($owner);
+        Sanctum::actingAs($owner);
+
+        $this->putJson("/api/v1/books/{$book->id}", $this->payload(
+            $book->genres->pluck('id')->all(),
+            ['isbn' => null],
+        ))->assertUnprocessable()->assertJsonValidationErrors(['isbn' => 'ISBNを入力してください']);
     }
 
     public function test_存在しないidは404のjsonエラー(): void

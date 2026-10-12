@@ -88,22 +88,40 @@ class BookCreateTest extends TestCase
         $this->assertNull($book->image_url);
     }
 
-    public function test_isbnと出版日は任意項目(): void
+    public function test_出版日は任意項目(): void
     {
-        // ISBN検索の自動入力に失敗しても登録できるよう nullable にしている（応用フェーズ）。
+        // 応用フェーズで published_date は nullable（データ要件 DR01）。
         $user = User::factory()->create();
         $genre = Genre::create(['name' => '小説']);
 
         $this->actingAs($user)
-            ->post('/books', $this->validPayload([$genre->id], [
-                'isbn' => '',
-                'published_date' => '',
-            ]))
+            ->post('/books', $this->validPayload([$genre->id], ['published_date' => '']))
             ->assertRedirect(route('books.show', Book::sole()));
 
-        $book = Book::sole();
-        $this->assertNull($book->isbn);
-        $this->assertNull($book->published_date);
+        $this->assertNull(Book::sole()->published_date);
+    }
+
+    public function test_isbnは必須(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::create(['name' => '小説']);
+
+        $this->actingAs($user)
+            ->post('/books', $this->validPayload([$genre->id], ['isbn' => '']))
+            ->assertSessionHasErrors(['isbn' => 'ISBNを入力してください']);
+
+        $this->assertDatabaseCount('books', 0);
+    }
+
+    public function test_画像urlは255文字以内(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::create(['name' => '小説']);
+        $longUrl = 'https://example.com/'.str_repeat('a', 236); // 256文字
+
+        $this->actingAs($user)
+            ->post('/books', $this->validPayload([$genre->id], ['image_url' => $longUrl]))
+            ->assertSessionHasErrors(['image_url' => '画像URLは255文字以内で入力してください']);
     }
 
     public function test_タイトルは必須(): void

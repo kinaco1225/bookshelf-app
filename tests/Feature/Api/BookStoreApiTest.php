@@ -102,24 +102,38 @@ class BookStoreApiTest extends TestCase
         $this->assertNull($book->image_url);
     }
 
-    public function test_isbnと出版日は任意(): void
+    public function test_出版日は任意(): void
     {
-        // ISBN検索の自動入力に失敗しても登録できるよう nullable にしている（応用フェーズ）。
+        // 応用フェーズで published_date は nullable（データ要件 DR01）。
         $genre = Genre::create(['name' => '小説']);
         Sanctum::actingAs(User::factory()->create());
 
-        $response = $this->postJson('/api/v1/books', $this->payload([$genre->id], [
-            'isbn' => null,
-            'published_date' => null,
-        ]));
-
-        $response->assertCreated()
-            ->assertJsonPath('data.isbn', null)
+        $this->postJson('/api/v1/books', $this->payload([$genre->id], ['published_date' => null]))
+            ->assertCreated()
             ->assertJsonPath('data.published_date', null);
 
-        $book = Book::sole();
-        $this->assertNull($book->isbn);
-        $this->assertNull($book->published_date);
+        $this->assertNull(Book::sole()->published_date);
+    }
+
+    public function test_isbnは必須で日本語メッセージが返る(): void
+    {
+        $genre = Genre::create(['name' => '小説']);
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->postJson('/api/v1/books', $this->payload([$genre->id], ['isbn' => null]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['isbn' => 'ISBNを入力してください']);
+    }
+
+    public function test_画像urlは255文字以内で日本語メッセージが返る(): void
+    {
+        $genre = Genre::create(['name' => '小説']);
+        Sanctum::actingAs(User::factory()->create());
+        $longUrl = 'https://example.com/'.str_repeat('a', 236); // 256文字
+
+        $this->postJson('/api/v1/books', $this->payload([$genre->id], ['image_url' => $longUrl]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['image_url' => '画像URLは255文字以内で入力してください']);
     }
 
     public function test_タイトルは必須で日本語メッセージが返る(): void
